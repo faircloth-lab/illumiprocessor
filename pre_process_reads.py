@@ -1,8 +1,9 @@
+
 #!/usr/bin/env python
 # encoding: utf-8
 
 """
-process_reads.py
+pre_process_reads.py
 
 Created by Brant Faircloth on 26 May 2011.
 Copyright 2011 Brant C. Faircloth. All rights reserved.
