@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # encoding: utf-8
 
@@ -35,7 +34,7 @@ python process_reads.py --sample-map SamplesDirectories.csv Bin_005
 import os
 import sys
 import glob
-import zlib
+import gzip
 import shutil
 import argparse
 import multiprocessing
@@ -84,6 +83,7 @@ def scythe_runner(reads):
 
 def trim_adapter_sequences(pool, tld, reads = 'raw'):
     sys.stdout.write("\nTrimming adapter contamination")
+    sys.stdout.flush()
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(scythe_runner, fastqs)
     return
@@ -100,6 +100,7 @@ def sickle_runner(reads):
 
 def trim_low_qual_reads(pool, tld, reads = 'adapt-trim'):
     sys.stdout.write("\nTrimming low quality reads")
+    sys.stdout.flush()
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(sickle_runner, fastqs)
     return
@@ -122,6 +123,7 @@ def drop_n_reads_runner(reads):
 
 def drop_n_reads(pool, tld, reads = 'qual-trim'):
     sys.stdout.write("\nDropping reads containing n-bases")
+    sys.stdout.flush()
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(drop_n_reads_runner, fastqs)
     return
@@ -142,6 +144,7 @@ def get_sequence_tags_runner(reads):
 
 def get_sequence_tags(pool, tld, reads = 'raw'):
     sys.stdout.write("\nGetting sequence tag counts")
+    sys.stdout.flush()
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(get_sequence_tags_runner, fastqs)
     return
@@ -149,10 +152,8 @@ def get_sequence_tags(pool, tld, reads = 'raw'):
 def zip_shit_up_runner(reads):
     tld, filename = reads
     inpt = os.path.join(tld, "n-less", filename)
-    z = open(os.path.join(tld, "n-less", filename + '.gz'), 'wb')
-    contents = open(inpt, 'rb').read()
-    z_contents = zlib.compress(contents)
-    z.write(z_contents)
+    z = gzip.open(os.path.join(tld, "n-less", filename + '.gz'), 'wb')
+    z.writelines(open(inpt, 'rb'))
     z.close()
     sys.stdout.write(".")
     sys.stdout.flush()
@@ -160,6 +161,7 @@ def zip_shit_up_runner(reads):
 
 def zip_shit_up(pool, tld, reads = 'n-less'):
     sys.stdout.write("\nZipping shit up")
+    sys.stdout.flush()
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(zip_shit_up_runner, fastqs)
     return
