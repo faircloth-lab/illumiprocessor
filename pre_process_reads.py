@@ -24,6 +24,14 @@ Bin_005/s_7_sequence.txt
 Based on contents of SampleDirectories.csv, it will rename the input files
 w/ their respective "names" as given in SampleDirectories.csv.
 
+REQUIRES
+========
+
+ * python 2.7
+ * scythe:     https://github.com/vsbuffalo/scythe.git
+ * sickle:     https://github.com/najoshi/sickle
+ * bf-tools:   https://github.com/brantfaircloth/bf-tools
+
 USAGE
 =====
 
