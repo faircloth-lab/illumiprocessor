@@ -6,6 +6,16 @@ process_reads.py
 
 Created by Brant Faircloth on 26 May 2011.
 Copyright 2011 Brant C. Faircloth. All rights reserved.
+
+USAGE:  python process_reads.py --sample-map SamplesDirectories.csv Bin_005
+
+Assumes that Bin_005.zip has been extracted into a dir of the same name e,g.:
+
+Bin_005/s_4_sequence.txt
+Bin_005/s_5_sequence.txt
+Bin_005/s_6_sequence.txt
+Bin_005/s_7_sequence.txt
+
 """
 
 import os
