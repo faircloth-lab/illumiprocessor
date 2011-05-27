@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 """
-pre_process_reads.py
+process_reads.py
 
 Created by Brant Faircloth on 26 May 2011.
 Copyright 2011 Brant C. Faircloth. All rights reserved.
@@ -155,10 +155,10 @@ def main():
     pool = multiprocessing.Pool(4)
     sample_map = get_tag_names_from_sample_file(args.sample_map)
     make_dirs_and_rename_files(sample_map, args.input)
-    #trim_adapter_sequences(pool, args.input)
-    #trim_low_qual_reads(pool, args.input)
-    #drop_n_reads(pool, args.input)
-    #get_sequence_tags(pool, args.input)
+    trim_adapter_sequences(pool, args.input)
+    trim_low_qual_reads(pool, args.input)
+    drop_n_reads(pool, args.input)
+    get_sequence_tags(pool, args.input)
     zip_shit_up(pool, args.input)
     
 if __name__ == '__main__':
