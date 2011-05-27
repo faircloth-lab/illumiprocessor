@@ -2,12 +2,17 @@
 # encoding: utf-8
 
 """
-pre_process_reads.py
+process_reads.py
 
 Created by Brant Faircloth on 26 May 2011.
 Copyright 2011 Brant C. Faircloth. All rights reserved.
 
-USAGE:  python process_reads.py --sample-map SamplesDirectories.csv Bin_005
+DESCRIPTION
+===========
+
+Pre-process Illumina reads for assembly by renaming, removing adapter
+contamination, quality trimming, removing N-bases, giving some summary
+info on tags, and zipping everything up.
 
 Assumes that Bin_005.zip has been extracted into a dir of the same name e,g.:
 
@@ -15,6 +20,14 @@ Bin_005/s_4_sequence.txt
 Bin_005/s_5_sequence.txt
 Bin_005/s_6_sequence.txt
 Bin_005/s_7_sequence.txt
+
+Based on contents of SampleDirectories.csv, it will rename the input files
+w/ their respective "names" as given in SampleDirectories.csv.
+
+USAGE
+=====
+
+python process_reads.py --sample-map SamplesDirectories.csv Bin_005
 
 """
 
@@ -27,6 +40,7 @@ import argparse
 import multiprocessing
 from collections import Counter
 from tools.sequence import fastq
+from tools.sequence import transform
 
 import pdb
 
@@ -37,7 +51,6 @@ def get_args():
     return parser.parse_args()
 
 def get_tag_names_from_sample_file(sample_directories):
-    """docstring for get_snps_from_file"""
     sample_map = {}
     for k,v in enumerate(open(sample_directories, 'rU')):
         if k == 0:
@@ -69,7 +82,7 @@ def scythe_runner(reads):
     return
 
 def trim_adapter_sequences(pool, tld, reads = 'raw'):
-    print "Trimming adapter contamination"
+    sys.stdout.write("\nTrimming adapter contamination")
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(scythe_runner, fastqs)
     return
@@ -79,13 +92,13 @@ def sickle_runner(reads):
     inpt = os.path.join(tld, "adapt-trim", filename)
     outp = os.path.join(tld, "qual-trim", filename)
     log = os.path.join(tld, "qual-trim", "{0}.log".format(filename))
-    os.system("sickle se -f {0} -t illumina -o {1} -q 20 -l 40 2>&1 >> {2}".format(inpt, outp, log))
+    os.system("sickle se -f {0} -t illumina -o {1} -q 20 -l 40 > {2} 2>&1".format(inpt, outp, log))
     sys.stdout.write(".")
     sys.stdout.flush()
     return
 
 def trim_low_qual_reads(pool, tld, reads = 'adapt-trim'):
-    print "Trimming low quality reads"
+    sys.stdout.write("\nTrimming low quality reads")
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(sickle_runner, fastqs)
     return
@@ -107,27 +120,27 @@ def drop_n_reads_runner(reads):
     return
 
 def drop_n_reads(pool, tld, reads = 'qual-trim'):
-    print "Dropping reads containing n-bases"
+    sys.stdout.write("\nDropping reads containing n-bases")
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(drop_n_reads_runner, fastqs)
     return
 
 def get_sequence_tags_runner(reads):
     tld, filename = reads
-    inpt = os.path.join(tld, "qual-trim", filename)
+    inpt = os.path.join(tld, "raw", filename)
     outp = open(os.path.join(tld, "stats", filename), 'w')
     cnt = Counter()
     for read in fastq.FastqReader(inpt):
         cnt[read.identifier.split('#')[-1].split('/')[0]] += 1
     for tag in cnt.keys():
-        outp.write("{0},{1},{2}".format(tag, cnt[tag], transform.DNA_reverse_complement(tag)))
+        outp.write("{0},{1},{2}\n".format(tag, cnt[tag], transform.DNA_reverse_complement(tag)))
     outp.close()
     sys.stdout.write(".")
     sys.stdout.flush()
     return
 
 def get_sequence_tags(pool, tld, reads = 'raw'):
-    print "Getting sequence tag counts"
+    sys.stdout.write("\nGetting sequence tag counts")
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(get_sequence_tags_runner, fastqs)
     return
@@ -145,21 +158,23 @@ def zip_shit_up_runner(reads):
     return
 
 def zip_shit_up(pool, tld, reads = 'n-less'):
-    print "Zipping shit up"
+    sys.stdout.write("\nZipping shit up")
     fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
     pool.map(zip_shit_up_runner, fastqs)
     return
 
 def main():
     args = get_args()
+    # careful here - zlib calls eat RAM
     pool = multiprocessing.Pool(4)
     sample_map = get_tag_names_from_sample_file(args.sample_map)
     make_dirs_and_rename_files(sample_map, args.input)
+    get_sequence_tags(pool, args.input)
     trim_adapter_sequences(pool, args.input)
     trim_low_qual_reads(pool, args.input)
     drop_n_reads(pool, args.input)
-    get_sequence_tags(pool, args.input)
     zip_shit_up(pool, args.input)
+    print ""
     
 if __name__ == '__main__':
     main()
