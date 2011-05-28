@@ -43,6 +43,8 @@ import os
 import sys
 import glob
 import gzip
+import math
+import numpy
 import shutil
 import argparse
 import multiprocessing
@@ -140,12 +142,20 @@ def get_sequence_tags_runner(reads):
     tld, filename = reads
     inpt = os.path.join(tld, "raw", filename)
     outp = open(os.path.join(tld, "stats", filename), 'w')
+    log = open(os.path.join(tld, "stats", "{0}.raw.lengths".format(filename)), 'w')
     cnt = Counter()
+    lengths = []
     for read in fastq.FastqReader(inpt):
         cnt[read.identifier.split('#')[-1].split('/')[0]] += 1
+        lengths.append(len(read.sequence))
     for tag in cnt.keys():
         outp.write("{0},{1},{2}\n".format(tag, cnt[tag], transform.DNA_reverse_complement(tag)))
     outp.close()
+    l = numpy.array(lengths)
+    mean = numpy.mean(l)
+    ci = 1.96 * (numpy.std(l, ddof=1)/math.sqrt(len(l)))
+    log.write("length,{0}\nci,{1}".format(mean, ci))
+    log.close()
     sys.stdout.write(".")
     sys.stdout.flush()
     return
@@ -174,9 +184,33 @@ def zip_shit_up(pool, tld, reads = 'n-less'):
     pool.map(zip_shit_up_runner, fastqs)
     return
 
+def get_read_length_stats_runner(reads):
+    tld, filename = reads
+    inpt = os.path.join(tld, "n-less", filename)
+    log = open(os.path.join(tld, "stats", "{0}.n-less.lengths".format(filename)), 'w')
+    lengths = []
+    for read in fastq.FastqReader(inpt):
+        lengths.append(len(read.sequence))
+    l = numpy.array(lengths)
+    mean = numpy.mean(l)
+    ci = 1.96 * (numpy.std(l, ddof=1)/math.sqrt(len(l)))
+    log.write("length,{0}\nci,{1}".format(mean, ci))
+    log.close()
+    sys.stdout.write(".")
+    sys.stdout.flush()
+    return
+
+def get_read_length_stats(pool, tld, reads = 'n-less'):
+    sys.stdout.write("\nGetting trimmed read stats")
+    sys.stdout.flush()
+    fastqs = [[tld, os.path.basename(f)] for f in glob.glob(os.path.join(tld, reads,'*.fastq'))]
+    pool.map(get_read_length_stats_runner, fastqs)
+    return
+
 def main():
     args = get_args()
-    # careful here - zlib calls eat RAM
+    # careful here w/ number of procs - zlib/gzip calls eat RAM
+    # because file is read into RAM
     pool = multiprocessing.Pool(4)
     sample_map = get_tag_names_from_sample_file(args.sample_map)
     make_dirs_and_rename_files(sample_map, args.input)
@@ -185,6 +219,7 @@ def main():
     trim_low_qual_reads(pool, args.input)
     drop_n_reads(pool, args.input)
     zip_shit_up(pool, args.input)
+    get_read_length_stats(pool, args.input)
     print ""
     
 if __name__ == '__main__':
