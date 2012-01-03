@@ -30,7 +30,7 @@ REQUIRES
  * python 2.7
  * scythe:     https://github.com/vsbuffalo/scythe.git
  * sickle:     https://github.com/najoshi/sickle
- * bf-tools:   https://github.com/brantfaircloth/bf-tools
+ * seqtools:   https://github.com/faircloth-lab/seqtools
 
 USAGE
 =====
@@ -49,8 +49,8 @@ import shutil
 import argparse
 import multiprocessing
 from collections import Counter
-from tools.sequence import fastq
-from tools.sequence import transform
+from seqtools.sequence import fastq
+from seqtools.sequence import transform
 
 import pdb
 
