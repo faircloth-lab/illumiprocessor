@@ -42,18 +42,59 @@ from seqtools.sequence import fastq
 
 import pdb
 
+class FullPaths(argparse.Action):
+    """Expand user- and relative-paths"""
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, os.path.abspath(os.path.expanduser(values)))
+
+
 def get_args():
     parser = argparse.ArgumentParser(description='Pre-process Illumina reads')
-    parser.add_argument('input', help='The input directory')
-    parser.add_argument('output', help='The output directory')
+    parser.add_argument('input', help='The input directory', action=FullPaths)
+    parser.add_argument('output', help='The output directory', action=FullPaths)
     parser.add_argument('conf', help='A configuration file containing metadata')
+    parser.add_argument('--no-rename',
+            dest='rename',
+            action='store_false',
+            default = True,
+            help='Do not rename files using [Map] or [Remap].')
+    parser.add_argument('--no-adapter-trim',
+            dest='adapter',
+            action='store_false',
+            default = True,
+            help='Do not trim reads for adapter contamination.')
+    parser.add_argument('--no-quality-trim', 
+            dest='quality',
+            action='store_false', 
+            default = True, 
+            help='Do not trim reads for quality.')
+    parser.add_argument('--no-interleave',
+            dest='interleave',
+            action='store_false',
+            default = True, 
+            help='Do not interleave trimmed reads.')
     parser.add_argument('--remap', 
-            action='store_true', default = False,
+            action='store_true',
+            default = False,
             help='Remap names onto file using [Remap] section of configuration file.' + \
             ' Used to change file names across many files.')
-    parser.add_argument('--move', 
-            action='store_true', default = False,
-            help='Move, rather than copy, original files.')
+    parser.add_argument('--se',
+            dest='pe',
+            action='store_false',
+            default = True,
+            help='Work with single-end reads (paired-end is default)')
+    parser.add_argument('--copy', 
+            action='store_true',
+            default = False,
+            help='Copy, rather than symlink, original files.')
+    parser.add_argument('--cleanup',
+            action='store_true',
+            default = False,
+            help='Delete intermediate files.')
+    parser.add_argument('--cores', 
+            type=int,
+            default = 1,
+            help='Number of cores to use.')
     return parser.parse_args()
 
 def get_tag_names_from_sample_file(inpt, names):
@@ -69,42 +110,44 @@ def get_tag_names_from_sample_file(inpt, names):
             "File {} does not exist".format(f)
     return sample_map
 
-def make_dirs_and_rename_files(input, output, sample_map, move = False):
-    newpths = []
-    dirs  = [
-            'untrimmed', 
-            'adapter-trimmed',
-            'split-adapter-trimmed',
-            'split-adapter-quality-trimmed',
-            'interleaved-adapter-quality-trimmed',
-            'stats'
-        ]
-    if not move:
-        print "Copying files to output directories..."
+def create_new_dir(base, dirname = None):
+    if dirname is None:
+        pth = base
     else:
-        print "Moving files to output directories..."
-    for old, new in sample_map.iteritems():
-        # setup new directories
-        newdir = os.path.join(output, new)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for d in dirs:
-            pth = os.path.join(newdir, d)
-            if not os.path.exists(pth):
-                os.makedirs(pth)
-        # prep to move files
-        oldpth = os.path.join(input, '.'.join([old, 'fastq.gz']))
-        newpth = os.path.join(newdir, 'untrimmed', '.'.join([sample_map[old], 'fastq.gz']))
-        if not move:
-            shutil.copyfile(oldpth, newpth)
+        pth = os.path.join(base, dirname)
+    if not os.path.exists(pth):
+        os.makedirs(pth)
+    return pth
+
+
+def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy):
+    newpths = []
+    if rename:
+        if not copy:
+            print "Symlinking files to output directories...\n"
         else:
-            shutil.move(oldpth, newpth)
-        newpths.append(newdir)
-        print "\t{} => {}".format(oldpth, newpth)
+            print "Moving files to output directories...\n"
+        for old, new in sample_map.iteritems():
+            newbase = create_new_dir(output, new)
+            newpth = create_new_dir(newbase, 'untrimmed')
+            # prep to move files
+            oldpth = os.path.join(inpt, '.'.join([old, 'fastq.gz']))
+            newpth = os.path.join(newpth, '.'.join([sample_map[old], 'fastq.gz']))
+            if not copy:
+                os.symlink(oldpth, newpth)
+                print "\t{} (sym =>) {}".format(oldpth, newpth)
+            else:
+                shutil.copyfile(oldpth, newpth)
+                print "\t{} => {}".format(oldpth, newpth)
+            newpths.append(newbase)
+    else:
+            for old, new in sample_map.iteritems():
+                newbase = os.path.join(output, new)
+                newpths.append(newbase)
     return newpths
 
 def build_adapters_file(conf, output):
-    adapters = 'adapters.fasta'
+    adapters = os.path.join(output, 'adapters.fasta')
     if not os.path.exists(adapters):
         f = open(adapters, 'w')
         for adp in conf.items('adapters'):
@@ -112,13 +155,17 @@ def build_adapters_file(conf, output):
         f.close()
 
 def scythe_runner(inpt):
+    basedir = os.path.split(inpt)[0]
+    adapters = os.path.join(basedir, 'adapters.fasta')
     inbase = os.path.basename(inpt)
     infile = ''.join([inbase, ".fastq.gz"])
-    inpth = os.path.join(inbase, 'untrimmed', infile)
-    outpth = open(os.path.join(inbase, 'adapter-trimmed', infile), 'wb')
-    statpth = open(os.path.join(inbase, 'stats', 'adapter-contam.txt'), 'w')
+    inpth = os.path.join(inpt, 'untrimmed', infile)
+    outpth = create_new_dir(inpt, 'adapter-trimmed')
+    outpth = open(os.path.join(outpth, infile), 'wb')
+    statpth = create_new_dir(inpt, 'stats')
+    statpth = open(os.path.join(statpth, 'adapter-contam.txt'), 'w')
     
-    cmd = ['scythe', '-a', 'adapters.fasta', '-q', 'sanger', inpth]
+    cmd = ['scythe', '-a', adapters, '-q', 'sanger', inpth]
     proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr = statpth)
     proc2 = subprocess.Popen(['gzip'], stdin=proc1.stdout, stdout = outpth)
     proc1.stdout.close()
@@ -139,11 +186,9 @@ def trim_adapter_sequences(pool, newpths):
 
 def split_reads_runner(inpt):
     inbase = os.path.basename(inpt)
-    splitpth = os.path.join(inbase, 'split-adapter-trimmed')
-    if not os.path.exists(splitpth):
-        os.makedirs(splitpth)
+    splitpth = create_new_dir(inpt, 'split-adapter-trimmed')
     infile = ''.join([inbase, ".fastq.gz"])
-    inpth = os.path.join(inbase, 'adapter-trimmed', infile)
+    inpth = os.path.join(inpt, 'adapter-trimmed', infile)
     reads = fastq.FasterFastqReader(inpth)
     
     out1 = ''.join([inbase, '-read1','.fastq.gz'])
@@ -172,11 +217,12 @@ def split_reads(pool, newpths):
         pool.map(split_reads_runner, newpths)
     else:
         map(split_reads_runner, newpths)
+    return
 
-def sickle_runner(inpt):
+def sickle_pe_runner(inpt):
     inbase = os.path.basename(inpt)
-    splitpth = os.path.join(inbase, 'split-adapter-trimmed')
-    qualpth = os.path.join(inbase, 'split-adapter-quality-trimmed')
+    splitpth = os.path.join(inpt, 'split-adapter-trimmed')
+    qualpth = create_new_dir(inpt, 'split-adapter-quality-trimmed')
     # infiles
     r1 = os.path.join(splitpth, ''.join([inbase, "-read1.fastq.gz"]))
     r2 = os.path.join(splitpth, ''.join([inbase, "-read2.fastq.gz"]))
@@ -184,8 +230,9 @@ def sickle_runner(inpt):
     out1 = os.path.join(qualpth, ''.join([inbase, "-read1.fastq"]))
     out2 = os.path.join(qualpth, ''.join([inbase, "-read2.fastq"]))
     outS = os.path.join(qualpth, ''.join([inbase, "-read-singleton.fastq"]))
-    statpth = open(os.path.join(inbase, 'stats', 'sickle-trim.txt'), 'w')
-
+    # make sure we have stat output dir and file
+    statpth = create_new_dir(inpt, 'stats')
+    statpth = open(os.path.join(statpth, 'sickle-trim.txt'), 'w')
     #command for sickle (DROPPING ANY Ns)
     cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n"]
     proc1 = subprocess.Popen(cmd, stdout=statpth, stderr=subprocess.STDOUT)
@@ -197,22 +244,24 @@ def sickle_runner(inpt):
     sys.stdout.write(".")
     sys.stdout.flush()
 
-def trim_low_qual_reads(pool, newpths):
+def trim_low_qual_reads(pool, newpths, pe = True):
     sys.stdout.write("\nTrimming low quality reads")
     sys.stdout.flush()
-    if pool:
-        pool.map(sickle_runner, newpths)
-    else:
-        map(sickle_runner, newpths)
+    if pe:
+        if pool:
+            pool.map(sickle_pe_runner, newpths)
+        else:
+            map(sickle_pe_runner, newpths)
+    return
 
 def interleave_reads_runner(inpt):
     inbase = os.path.basename(inpt)
-    qualpth = os.path.join(inbase, 'split-adapter-quality-trimmed')
-    interpth = os.path.join(inbase, 'interleaved-adapter-quality-trimmed')
+    qualpth = os.path.join(inpt, 'split-adapter-quality-trimmed')
+    interpth = create_new_dir(inpt, 'interleaved-adapter-quality-trimmed')
 
     r1 = os.path.join(qualpth, ''.join([inbase, "-read1.fastq.gz"]))
     r2 = os.path.join(qualpth, ''.join([inbase, "-read2.fastq.gz"]))
-    out = os.path.join(interpth, ''.join([inbase, "read-interleaved.fastq.gz"]))
+    out = os.path.join(interpth, ''.join([inbase, "-read-interleaved.fastq.gz"]))
 
     read1 = fastq.FasterFastqReader(r1)
     read2 = fastq.FasterFastqReader(r2)
@@ -243,27 +292,48 @@ def interleave_reads(pool, newpths):
         pool.map(interleave_reads_runner, newpths)
     else:
         map(interleave_reads_runner, newpths)
+    return
+
+def cleanup_intermediate_files(newpths, interleave):
+    dirs = ['adapter-trimmed', 'split-adapter-trimmed']
+    for pth in newpths:
+        for d in dirs:
+            try:
+                shutil.rmtree(os.path.join(pth, d))
+            except:
+                pass
+        if interleave:
+            shutil.rmtree(os.path.join(pth, 'split-adapter-quality-trimmed'))
 
 def main():
     args = get_args()
     conf = ConfigParser.ConfigParser()
     conf.read(args.conf)
-    if multiprocessing.nproc > 2:
-        pool = multiprocessing.Pool(4)
+    nproc = multiprocessing.cpu_count()
+    if nproc >= 2 and args.cores >= 2:
+        pool = multiprocessing.Pool(args.cores)
     else:
         pool = None
-    if not args.remap:
-        sample_map = get_tag_names_from_sample_file(args.input, conf.items('map'))
+    if args.remap:
+        names = conf.items('remap')
     else:
-        sample_map = get_tag_names_from_sample_file(args.input, conf.items('remap'))
-    newpths = make_dirs_and_rename_files(args.input, args.output, sample_map, args.move)
-    # change to working dir
-    os.chdir(args.output)
-    build_adapters_file(conf, args.output)
-    trim_adapter_sequences(pool, newpths)
-    split_reads(pool, newpths)
-    trim_low_qual_reads(pool, newpths)
-    interleave_reads(pool, newpths)
+        names = conf.items('map')
+
+    create_new_dir(args.output, None)
+    sample_map = get_tag_names_from_sample_file(args.input, names)
+    newpths = make_dirs_and_rename_files(args.input, args.output, sample_map, args.rename, args.copy)
+    if args.adapter:
+        build_adapters_file(conf, args.output)
+        trim_adapter_sequences(pool, newpths)
+    if args.quality:
+        if args.pe:
+            split_reads(pool, newpths)
+            trim_low_qual_reads(pool, newpths)
+    if args.pe and args.interleave:
+       interleave_reads(pool, newpths)
+    if args.cleanup:
+        cleanup_intermediate_files(newpths, args.interleave)
+
     print ""
     
 if __name__ == '__main__':
