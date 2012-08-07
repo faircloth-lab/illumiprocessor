@@ -30,6 +30,7 @@ python illumiprocessor.py \
 """
 
 import os
+import re
 import sys
 import glob
 import shutil
@@ -130,17 +131,12 @@ def message():
 *****************************************************************\n\n"""
 
 
-def build_file_name(f, opts, read):
-    #pdb.set_trace()
-    if opts.prefix and not opts.suffix:
-        name = opts.separator.join([opts.prefix, f, read])
-    elif opts.suffix:
-        name = opts.separator.join([f, read, opts.suffix])
-    elif opts.prefix and opts.suffix:
-        name = opts.separator.join([opts.prefix, f, read, opts.suffix])
-    else:
-        name = opts.separator.join([f, read, opts.suffix])
-    return "{0}{1}".format(name, opts.extension)
+def build_file_name(f, opts, read, directory):
+    # use glob here for wilcard expansion
+    pth = glob.glob(os.path.join(directory, read.format(name=f)))
+    # make sure we get back only 1 match
+    assert len(pth) == 1, "Your name format matches more than one file"
+    return pth[0]
 
 
 def check_read_names(opts, f, inpt):
@@ -149,8 +145,8 @@ def check_read_names(opts, f, inpt):
     else:
         r = [opts.read1]
     for i in r:
-        fname = build_file_name(f, opts, i)
-        if not os.path.isfile(os.path.join(inpt, fname)):
+        fname = build_file_name(f, opts, i, inpt)
+        if not os.path.isfile(fname):
             msg = "{} does not exist".format(fname)
             raise IOError(msg)
 
@@ -179,6 +175,7 @@ def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy, opts):
     newpths = []
     if opts.tworeads:
         reads = [opts.read1, opts.read2]
+        regex = re.compile('._(?:R|Read|READ)(\d)_.')
     else:
         reads = [opts.read1]
     if rename:
@@ -191,11 +188,13 @@ def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy, opts):
             newpth = create_new_dir(newbase, 'untrimmed')
             for read in reads:
                 # prep to move files
-                oldfile = os.path.join(inpt, build_file_name(old, opts, read))
+                oldfile = build_file_name(old, opts, read, inpt)
+                #pdb.set_trace()
                 if len(reads) == 1:
                     newfile = os.path.join(newpth, '.'.join([sample_map[old], 'fastq.gz']))
                 else:
-                    name = "{}-{}".format(sample_map[old], read)
+                    rnum = regex.search(read).groups()[0]
+                    name = "{}-READ{}".format(sample_map[old], rnum)
                     newfile = os.path.join(newpth, '.'.join([name, 'fastq.gz']))
                 if not copy:
                     os.symlink(oldfile, newfile)
@@ -409,29 +408,18 @@ class FileOptions():
         self.tworeads = False
         self.read1 = ''
         self.read2 = ''
-        self.prefix = ''
-        self.suffix = ''
-        self.extension = 'fastq.gz'
-        self.separator = ''
-
-    def _try_get_option(self, conf, section, option):
-        try:
-            return conf.get(section, option)
-        except ConfigParser.NoOptionError:
-            return None
 
     def get_complex_arguments(self, conf, section='params'):
         self.tworeads = conf.getboolean('params', 'separate reads')
-        for attr, value in self.__dict__.iteritems():
-            new_value = self._try_get_option(conf, section, attr)
-            if new_value:
-                setattr(self, attr, new_value)
+        self.read1 = conf.get('params', 'read1')
+        self.read2 = conf.get('params', 'read2')
 
 
 def main():
     message()
     args = get_args()
     conf = ConfigParser.ConfigParser()
+    conf.optionxform = str
     conf.read(args.conf)
     nproc = multiprocessing.cpu_count()
     options = FileOptions()
@@ -448,7 +436,6 @@ def main():
     create_new_dir(args.output, None)
     sample_map = get_tag_names_from_sample_file(args.input, names, args.remap, options)
     newpths = make_dirs_and_rename_files(args.input, args.output, sample_map, args.rename, args.copy, options)
-    #pdb.set_trace()
     if args.only_cleanup:
         cleanup_intermediate_files(newpths, args.interleave)
         sys.exit()
