@@ -63,8 +63,8 @@ def get_args():
         )
     parser.add_argument('--complex',
             dest='complex',
-            action='store_false',
-            default=True,
+            action='store_true',
+            default=False,
             help='Complex file names or two-reads for PE data.'
         )
     parser.add_argument('--no-adapter-trim',
@@ -88,7 +88,7 @@ def get_args():
     parser.add_argument('--remap',
             action='store_true',
             default=False,
-            help='Remap names onto file using [Remap] section of configuration file.' + \
+            help='Remap names onto file using [remap] section of configuration file.' + \
             ' Used to change file names across many files.'
         )
     parser.add_argument('--se',
@@ -214,7 +214,7 @@ def build_adapters_file(conf, inpt):
     #pdb.set_trace()
     outfile = os.path.join(inpt, 'adapters.fasta')
     name = os.path.basename(inpt)
-    combos = [i.lower() for i in conf.get('combos', name).split(',')]
+    combos = [i for i in conf.get('combos', name).split(',')]
     seqs = dict(conf.items('indexes'))
     adapters = dict(conf.items('adapters'))
     indexed = {}
@@ -414,6 +414,10 @@ class FileOptions():
         self.read1 = conf.get('params', 'read1')
         self.read2 = conf.get('params', 'read2')
 
+    def get_arguments(self, conf, section='params'):
+        self.tworeads = conf.getboolean('params', 'separate reads')
+        self.read1 = conf.get('params', 'read1')
+
 
 def main():
     message()
@@ -433,6 +437,8 @@ def main():
         names = conf.items('map')
     if args.complex and conf.has_section('params'):
         options.get_complex_arguments(conf)
+    elif conf.has_section('params'):
+        options.get_arguments(conf)
     create_new_dir(args.output, None)
     sample_map = get_tag_names_from_sample_file(args.input, names, args.remap, options)
     newpths = make_dirs_and_rename_files(args.input, args.output, sample_map, args.rename, args.copy, options)
