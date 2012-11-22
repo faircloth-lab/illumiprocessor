@@ -132,11 +132,15 @@ def message():
 
 
 def build_file_name(f, opts, read, directory):
-    # use glob here for wilcard expansion
-    pth = glob.glob(os.path.join(directory, read.format(name=f)))
-    # make sure we get back only 1 match
-    assert len(pth) == 1, "Your name format matches more than one file"
-    return pth[0]
+    if '*' in f:
+        # use glob here for wilcard expansion
+        pth = glob.glob(os.path.join(directory, read.format(name=f)))
+        # make sure we get back only 1 match
+        assert len(pth) == 1, "Your name format matches more than one file"
+        return pth[0]
+    else:
+        pth = os.path.join(directory, read.format(name=f))
+        return pth
 
 
 def check_read_names(opts, f, inpt):
@@ -175,7 +179,7 @@ def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy, opts):
     newpths = []
     if opts.tworeads:
         reads = [opts.read1, opts.read2]
-        regex = re.compile('._(?:R|Read|READ)(\d)_.')
+        regex = re.compile('._(?:R|Read|READ)(\d)_*.')
     else:
         reads = [opts.read1]
     if rename:
