@@ -261,7 +261,9 @@ def scythe_runner(inpt):
         statpth = open(
                 os.path.join(statpth, '{}-adapter-contam.txt'.format(infile_name)), 'w'
             )
-        cmd = ['scythe', '-a', adapters, '-q', 'sanger', infile]
+	# Casava >= 1.8 is Sanger encoded
+	# set prior slightly higher than default
+        cmd = ['scythe', '-a', adapters, '-q', 'sanger', '-p', '0.1', infile]
         proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=statpth)
         proc2 = subprocess.Popen(['gzip'], stdin=proc1.stdout, stdout=outpth)
         proc1.stdout.close()
