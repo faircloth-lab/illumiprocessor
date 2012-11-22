@@ -333,8 +333,8 @@ def sickle_pe_runner(inpt):
     # make sure we have stat output dir and file
     statpth = create_new_dir(inpt, 'stats')
     statpth = open(os.path.join(statpth, 'sickle-trim.txt'), 'w')
-    #command for sickle (DROPPING ANY Ns)
-    cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n"]
+    #command for sickle (DROPPING ANY Ns and reads < 40 bp in length)
+    cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n", "-l", "40"]
     proc1 = subprocess.Popen(cmd, stdout=statpth, stderr=subprocess.STDOUT)
     err = proc1.communicate()
     statpth.close()
