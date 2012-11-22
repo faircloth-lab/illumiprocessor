@@ -227,6 +227,10 @@ def build_adapters_file(conf, inpt):
             for k, v in adapters.iteritems():
                 indexed[k] = v.replace('*', seqs[combo])
             break
+        else:
+            for k, v in adapters.iteritems():
+                indexed[k] = v.replace('*', seqs[combo])
+            break
     if not indexed:
         indexed = adapters
     if not os.path.exists(outfile):
