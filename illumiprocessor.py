@@ -175,7 +175,7 @@ def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy, opts):
     newpths = []
     if opts.tworeads:
         reads = [opts.read1, opts.read2]
-        regex = re.compile('._(?:R|Read|READ)(\d)_.')
+        regex = re.compile('._(?:R|Read|READ)(\d)_{0,1}.')
     else:
         reads = [opts.read1]
     if rename:
