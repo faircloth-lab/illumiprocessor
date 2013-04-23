@@ -179,7 +179,7 @@ def make_dirs_and_rename_files(inpt, output, sample_map, rename, copy, opts):
     newpths = []
     if opts.tworeads:
         reads = [opts.read1, opts.read2]
-        regex = re.compile('._(?:R|Read|READ)(\d)_.')
+        regex = re.compile('._(?:R|Read|READ)(\d)_{0,1}.')
     else:
         reads = [opts.read1]
     if rename:
@@ -333,8 +333,8 @@ def sickle_pe_runner(inpt):
     # make sure we have stat output dir and file
     statpth = create_new_dir(inpt, 'stats')
     statpth = open(os.path.join(statpth, 'sickle-trim.txt'), 'w')
-    #command for sickle (DROPPING ANY Ns and reads < 40 bp in length)
-    cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n", "-l", "40"]
+    #command for sickle (DROPPING ANY Ns)
+    cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n"]
     proc1 = subprocess.Popen(cmd, stdout=statpth, stderr=subprocess.STDOUT)
     err = proc1.communicate()
     statpth.close()
@@ -444,7 +444,7 @@ def main():
     if args.remap:
         names = conf.items('remap')
     else:
-        names = conf.items('map')
+        names = conf.items('combos')
     if args.complex and conf.has_section('params'):
         options.get_complex_arguments(conf)
     elif conf.has_section('params'):
