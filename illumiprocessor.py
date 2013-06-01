@@ -79,6 +79,12 @@ def get_args():
             default=True,
             help='Do not trim reads for quality.'
         )
+    parser.add_argument('--no-drop-n',
+            dest='dropn',
+            action='store_false',
+            default=True,
+            help='Do not drop reads containing ambiguities.'
+        )
     parser.add_argument('--no-interleave',
             dest='interleave',
             action='store_false',
@@ -312,8 +318,8 @@ def split_reads(pool, newpths):
     return
 
 
-def sickle_pe_runner(inpt):
-    #pdb.set_trace()
+def sickle_pe_runner(data):
+    inpt, dropn = data
     inname = os.path.split(inpt)[1]
     splitpth = os.path.join(inpt, 'split-adapter-trimmed')
     qualpth = create_new_dir(inpt, 'split-adapter-quality-trimmed')
@@ -328,7 +334,10 @@ def sickle_pe_runner(inpt):
     statpth = create_new_dir(inpt, 'stats')
     statpth = open(os.path.join(statpth, 'sickle-trim.txt'), 'w')
     #command for sickle (DROPPING ANY Ns)
-    cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n"]
+    if dropn:
+        cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS, "-n"]
+    else:
+        cmd = ["sickle", "pe", "-f", r1, "-r", r2,  "-t", "sanger", "-o", out1, "-p", out2, "-s", outS]
     proc1 = subprocess.Popen(cmd, stdout=statpth, stderr=subprocess.STDOUT)
     err = proc1.communicate()
     statpth.close()
@@ -340,14 +349,15 @@ def sickle_pe_runner(inpt):
     sys.stdout.flush()
 
 
-def trim_low_qual_reads(pool, newpths, pe=True):
+def trim_low_qual_reads(pool, newpths, dropn, pe=True):
     sys.stdout.write("\nTrimming low quality reads")
     sys.stdout.flush()
+    data = (newpths, dropn)
     if pe:
         if pool:
-            pool.map(sickle_pe_runner, newpths)
+            pool.map(sickle_pe_runner, data)
         else:
-            map(sickle_pe_runner, newpths)
+            map(sickle_pe_runner, data)
     return
 
 
@@ -459,7 +469,9 @@ def main():
         if args.pe:
             if not options.tworeads:
                 split_reads(pool, newpths)
-            trim_low_qual_reads(pool, newpths)
+            trim_low_qual_reads(pool, newpths, args.dropn)
+        else:
+            trim_low_qual_reads(pool, newpths, pe=False)
     if args.pe and args.interleave:
         interleave_reads(pool, newpths)
     if args.cleanup:
