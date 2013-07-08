@@ -225,10 +225,12 @@ def build_adapters_file(conf, inpt):
     seqs = dict(conf.items('indexes'))
     adapters = dict(conf.items('adapters'))
     indexed = {}
+    nextera = False
     for combo in combos:
         if combo.startswith('n7'):
             indexed[combo] = adapters['n7'].replace('*', seqs[combo])
         elif combo.startswith('n5'):
+            nextera = True
             # ensure we revcomp of n5
             indexed[combo] = adapters['n5'].replace('*', DNA_reverse_complement(seqs[combo]))
         elif 'truseq' in combo or 'idt' in combo:
@@ -239,6 +241,9 @@ def build_adapters_file(conf, inpt):
             for k, v in adapters.iteritems():
                 indexed[k] = v.replace('*', seqs[combo])
             break
+    if nextera:
+        sys.stdout.write("It looks like you are using Nextera adapters (n5 and n7 in names).  If so ENSURE that these are entered as they were in the SampleSheet.csv")
+        sys.stdout.flush()
     if not indexed:
         indexed = adapters
     if not os.path.exists(outfile):
