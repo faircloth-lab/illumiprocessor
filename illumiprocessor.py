@@ -8,7 +8,7 @@ Author: Brant Faircloth
 Created by Brant Faircloth on 26 May 2011 14:03 PST (-0800)
 Copyright (c) 2011-2012 Brant C. Faircloth. All rights reserved.
 
-Description: 
+Description:
 
 
 REQUIRES
@@ -41,6 +41,7 @@ import multiprocessing
 
 from itertools import izip
 from seqtools.sequence import fastq
+from seqtools.sequence.transform import DNA_reverse_complement
 
 import pdb
 
@@ -228,7 +229,8 @@ def build_adapters_file(conf, inpt):
         if combo.startswith('n7'):
             indexed[combo] = adapters['n7'].replace('*', seqs[combo])
         elif combo.startswith('n5'):
-            indexed[combo] = adapters['n5'].replace('*', seqs[combo])
+            # ensure we revcomp of n5
+            indexed[combo] = adapters['n5'].replace('*', DNA_reverse_complement(seqs[combo]))
         elif 'truseq' in combo or 'idt' in combo:
             for k, v in adapters.iteritems():
                 indexed[k] = v.replace('*', seqs[combo])
@@ -263,7 +265,7 @@ def scythe_runner(inpt):
         statpth = open(
                 os.path.join(statpth, '{}-adapter-contam.txt'.format(infile_name)), 'w'
             )
-        cmd = ['scythe', '-a', adapters, '-q', 'sanger', infile]
+        cmd = ['scythe', '-a', adapters, '-q', 'sanger', '-p', '0.3', infile]
         proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=statpth)
         proc2 = subprocess.Popen(['gzip'], stdin=proc1.stdout, stdout=outpth)
         proc1.stdout.close()
@@ -352,7 +354,7 @@ def sickle_pe_runner(data):
 def trim_low_qual_reads(pool, newpths, dropn, pe=True):
     sys.stdout.write("\nTrimming low quality reads")
     sys.stdout.flush()
-    data = (newpths, dropn)
+    data = [(pth, dropn) for pth in newpths]
     if pe:
         if pool:
             pool.map(sickle_pe_runner, data)
