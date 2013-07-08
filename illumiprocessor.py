@@ -139,11 +139,15 @@ def message():
 
 
 def build_file_name(f, opts, read, directory):
-    # use glob here for wilcard expansion
-    pth = glob.glob(os.path.join(directory, read.format(name=f)))
-    # make sure we get back only 1 match
-    assert len(pth) == 1, "Your name format matches more than one file"
-    return pth[0]
+    if '*' in read:
+        # use glob here for wilcard expansion
+        pth = glob.glob(os.path.join(directory, read.format(name=f)))
+        # make sure we get back only 1 match
+        assert len(pth) == 1, "Your name format matches more than one file"
+        return pth[0]
+    else:
+        pth = os.path.join(directory, read.format(name=f))
+        return pth
 
 
 def check_read_names(opts, f, inpt):
@@ -270,6 +274,8 @@ def scythe_runner(inpt):
         statpth = open(
                 os.path.join(statpth, '{}-adapter-contam.txt'.format(infile_name)), 'w'
             )
+        # Casava >= 1.8 is Sanger encoded
+        # set prior slightly higher than default
         cmd = ['scythe', '-a', adapters, '-q', 'sanger', '-p', '0.3', infile]
         proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=statpth)
         proc2 = subprocess.Popen(['gzip'], stdin=proc1.stdout, stdout=outpth)
@@ -455,7 +461,7 @@ def main():
     if args.remap:
         names = conf.items('remap')
     else:
-        names = conf.items('map')
+        names = conf.items('combos')
     if args.complex and conf.has_section('params'):
         options.get_complex_arguments(conf)
     elif conf.has_section('params'):
