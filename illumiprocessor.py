@@ -70,28 +70,23 @@ def get_args():
         help='A configuration file containing metadata'
     )
     parser.add_argument(
+        '--trimmomatic',
+        required=True,
+        default="~/bin/trimmomatic-0.30.jar",
+        action=FullPaths,
+        help='The path to the trimmomatic-0.XX.jar file'
+    )
+    parser.add_argument(
         '--min-len',
         type=int,
         default=40,
         help='The minimum length of reads to keep (default:40)'
     )
     parser.add_argument(
-        '--no-drop-n',
-        action='store_false',
-        default=True,
-        help='Do not drop reads containing ambiguities (default: off)'
-    )
-    parser.add_argument(
-        '--quality-format',
-        choices=['sanger', 'solexa', 'illumina'],
-        default='sanger',
-        help='The quality format of the reads (default: sanger)'
-    )
-    parser.add_argument(
-        '--no-clean',
+        '--no-merge',
         action='store_true',
         default=False,
-        help='Do not delete intermediate files (default: off)'
+        help='Do not merge singleton files (default: off; singleton files will be merged)'
     )
     parser.add_argument(
         '--cores',
@@ -191,7 +186,7 @@ def build_adapters_file(sample):
     return adapters
 
 
-def scythe_runner(work):
+def trimmomatic_runner(work):
     args, sample = work
     # build sample specific adapters files
     adapters = build_adapters_file(sample)
@@ -199,88 +194,71 @@ def scythe_runner(work):
     stat_output = os.path.join(sample.homedir, 'stats')
     os.makedirs(stat_output)
     # create dir for program output
-    sample.adapt_trimmed = os.path.join(sample.homedir, 'split-adapter-trimmed')
-    os.makedirs(sample.adapt_trimmed)
+    sample.trimmed = os.path.join(sample.homedir, 'split-adapter-quality-trimmed')
+    os.makedirs(sample.trimmed)
     # get all the read data in the untrimmed dir
-    reads = glob.glob(os.path.join(sample.homedir, 'raw-reads', '*.fastq*'))
-    for read in reads:
-        name = os.path.basename(read)
-        with open(os.path.join(sample.adapt_trimmed, name), 'wb') as gzip_file:
-            with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(name)), 'w') as stat_file:
-                # Casava >= 1.8 is Sanger encoded - we almost always use Casava >= 1.8
-                # set default prior value explicitly, so we know what we used.
-                cmd = ["scythe", "-a", adapters, "-q", args.quality_format, "-p", "0.3", read]
-                proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stat_file)
-                proc2 = subprocess.Popen(["gzip"], stdin=proc1.stdout, stdout=gzip_file)
-                proc1.stdout.close()
-                proc2.communicate()
-
-
-def sickle_runner(work):
-    args, sample = work
-    sample.qual_trimmed = os.path.join(sample.homedir, 'split-adapter-quality-trimmed')
-    os.makedirs(sample.qual_trimmed)
-    # input files
     input = []
     for read in ["READ1", "READ2"]:
-        input.append(os.path.join(sample.adapt_trimmed, "{}-{}.fastq.gz".format(
+        input.append(os.path.join(sample.raw_reads, "{}-{}.fastq.gz".format(
             sample.end_name,
             read
         )))
-    # output files
     output = []
-    for read in ["READ1", "READ2", "READ-singleton"]:
-        output.append(os.path.join(sample.qual_trimmed, "{}-{}.fastq".format(
+    for read in ["READ1", "READ1-single", "READ2", "READ2-single"]:
+        output.append(os.path.join(sample.trimmed, "{}-{}.fastq.gz".format(
             sample.end_name,
             read
         )))
-    # make sure we have stat output dir and file
-    stat_output = os.path.join(sample.homedir, 'stats')
-    try:
-        os.makedirs(stat_output, True)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(stat_output):
-            pass
-        else:
-            raise
-    with open(os.path.join(stat_output, 'sickle-trim.txt'), 'w') as stat_file:
-            #command for sickle (DROPPING ANY Ns and seqs < 40 bp)
-            cmd = [
-                "sickle",
-                "pe",
-                "-f", input[0],
-                "-r", input[1],
-                "-t", args.quality_format,
-                "-o", output[0],
-                "-p", output[1],
-                "-s", output[2],
-                "-l", str(args.min_len),
-            ]
-            if not args.no_drop_n:
-                cmd += ["-n"]
-            proc1 = subprocess.Popen(cmd, stdout=stat_file, stderr=subprocess.STDOUT)
-            proc1.communicate()
-    # sickle does not gzip, so gzip on completion
-    for f in output:
-        proc2 = subprocess.Popen(['gzip', f])
-        proc2.communicate()
+    name = os.path.basename(read)
+    with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(name)), 'w') as stat_file:
+        # Casava >= 1.8 is Sanger encoded - we almost always use Casava >= 1.8
+        # set default prior value explicitly, so we know what we used.
+        cmd = [
+            "java",
+            "-jar",
+            args.trimmomatic,
+            "PE",
+            "-phred33",
+            input[0],
+            input[1],
+            output[0],
+            output[1],
+            output[2],
+            output[3],
+            "ILLUMINACLIP:{}:2:30:10".format(adapters),
+            "LEADING:5",
+            "TRAILING:15",
+            "SLIDINGWINDOW:4:15",
+            "MINLEN:{}".format(args.min_len)
+        ]
+        proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stat_file)
+        proc1.communicate()
 
 
-def cleanup_intermediate_files(sample):
-    for d in [sample.adapt_trimmed]:
-        try:
-            shutil.rmtree(d)
-        except:
-            pass
+def trimmomatic_merger(sample):
+    # rename READ1-single to READ-singleton
+    singles = []
+    for read in ["READ1-single", "READ2-single"]:
+        singles.append(os.path.join(sample.trimmed, "{}-{}.fastq.gz".format(
+            sample.end_name,
+            read
+        )))
+    # cat contents of READ2-single into READ-singleton
+    new_name = "{}-READ-singleton.fastq.gz".format(sample.end_name)
+    new_pth = os.path.join(sample.trimmed, new_name)
+    os.rename(singles[0], new_pth)
+    # remove READ2-single
+    with open(new_pth, 'ab') as outfile:
+        shutil.copyfileobj(open(singles[1]), outfile)
+    os.remove(singles[1])
 
 
 def runner(work):
     args, sample = work
-    # run scythe to trim adapter contamination
-    scythe_runner(work)
-    sickle_runner(work)
-    if not args.no_clean:
-        cleanup_intermediate_files(sample)
+    # run trimmomatic to trim adapter contamination and low qual bases
+    trimmomatic_runner(work)
+    if not args.no_merge:
+        trimmomatic_merger(sample)
     sys.stdout.write(".")
     sys.stdout.flush()
 
@@ -301,14 +279,14 @@ def create_new_dirs(reads):
         os.makedirs(reads[0].output_dir)
     # now create the directory to hold our links to old data
     for sample in reads:
-        new_pth = os.path.join(sample.homedir, 'raw-reads')
-        os.makedirs(new_pth)
+        sample.raw_reads = os.path.join(sample.homedir, 'raw-reads')
+        os.makedirs(sample.raw_reads)
         # link over old data into new dir
         for reads in sample.r1:
-            new_file = os.path.join(new_pth, "{}-READ1.fastq.gz".format(sample.end_name))
+            new_file = os.path.join(sample.raw_reads, "{}-READ1.fastq.gz".format(sample.end_name))
             os.symlink(reads, new_file)
         for reads in sample.r2:
-            new_file = os.path.join(new_pth, "{}-READ2.fastq.gz".format(sample.end_name))
+            new_file = os.path.join(sample.raw_reads, "{}-READ2.fastq.gz".format(sample.end_name))
             os.symlink(reads, new_file)
 
 if __name__ == '__main__':
@@ -333,7 +311,7 @@ if __name__ == '__main__':
     # start the cleaning process
     sys.stdout.write("Running")
     sys.stdout.flush()
-    if pool:
+    if pool is not None:
         pool.map(runner, work)
     else:
         map(runner, work)
