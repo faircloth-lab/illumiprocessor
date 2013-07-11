@@ -15,17 +15,7 @@ REQUIRES
 --------
 
  * python 2.7
- * scythe:     https://github.com/vsbuffalo/scythe.git
- * sickle:     https://github.com/najoshi/sickle (commit > 09febb6; Feb 28 2012)
- * seqtools:   https://github.com/faircloth-lab/seqtools
-
-USAGE
-------
-
-python illumiprocessor.py \
-    indata/ \
-    outdata/ \
-    pre-process-example.conf
+ * Trimmomatic
 
 """
 
@@ -161,6 +151,9 @@ class SequenceData():
             self.i7 = combo
             self.i7s = tags[self.i7]
             self.i7a = conf.get('adapters', 'i7').replace("*", self.i7s)
+            # there is no index sequence in this adapter
+            self.i5a = conf.get('adapters', 'i5')
+
 
     def __repr__(self):
         return "<{}.{} object at {}, name={}; i7={},{}; i5={},{}; i5revcomp={}>".format(
@@ -209,10 +202,8 @@ def trimmomatic_runner(work):
             sample.end_name,
             read
         )))
-    name = os.path.basename(read)
-    with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(name)), 'w') as stat_file:
-        # Casava >= 1.8 is Sanger encoded - we almost always use Casava >= 1.8
-        # set default prior value explicitly, so we know what we used.
+    with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(sample.end_name)), 'w') as stat_file:
+        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use Casava >= 1.8
         cmd = [
             "java",
             "-jar",
