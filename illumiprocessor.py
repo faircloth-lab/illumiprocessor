@@ -84,6 +84,18 @@ def get_args():
         default=1,
         help='Number of cores to use.'
     )
+    parser.add_argument(
+        '--r1-pattern',
+        type=str,
+        default=None,
+        help='The regex pattern for R1 reads.'
+    )
+    parser.add_argument(
+        '--r2-pattern',
+        type=str,
+        default=None,
+        help='The regex pattern for R2 reads.'
+    )
     return parser.parse_args()
 
 
@@ -114,6 +126,14 @@ class SequenceData():
         self.i7s = None
         self.i5a = None
         self.i7a = None
+        if args.r1_pattern is None:
+            self.r1_pattern = "{}_(?:.*)_(R1|READ1|Read1|read1)_\d+.fastq(?:.gz)*"
+        else:
+            self.r1_pattern = args.r1_pattern
+        if args.r2_pattern is None:
+            self.r2_pattern = "{}_(?:.*)_(R2|READ2|Read2|read2)_\d+.fastq(?:.gz)*"
+        else:
+            self.r2_pattern = args.r2_pattern
         self._get_read_data()
         self._get_tag_data(conf)
 
@@ -125,10 +145,12 @@ class SequenceData():
         all_reads = glob.glob("{}*".format(os.path.join(self.input_dir, self.start_name)))
         for pth in all_reads:
             name = os.path.basename(pth)
-            if re.search("{}_(?:.*)_(R1|READ1|Read1|read1)_\d+.fastq(?:.gz)*".format(self.start_name), name):
+            if re.search(self.r1_pattern.format(self.start_name), name):
                 self.r1 += (pth,)
-            elif re.search("{}_(?:.*)_(R2|READ2|Read2|read2)_\d+.fastq(?:.gz)*".format(self.start_name), name):
+            elif re.search(self.r2_pattern.format(self.start_name), name):
                 self.r2 += (pth,)
+        if self.r1 == () or self.r2 == ():
+            raise IOError, "There is a problem with the read names for {}.  Ensure you do not have spelling/capitalization errors in your conf file.".format(self.start_name)
 
     def _get_tag_data(self, conf):
         tags = dict(conf.items('tag sequences'))
