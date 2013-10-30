@@ -96,6 +96,19 @@ def get_args():
         default=None,
         help='The regex pattern for R2 reads.'
     )
+    parser.add_argument(
+        "--se",
+        action="store_true",
+        default=False,
+        help="""Single-end reads.""",
+    )
+    parser.add_argument(
+        "--phred",
+        type=str,
+        choices=("phred33", "phred64"),
+        default="phred33",
+        help="""The type of fastq encoding used.""",
+    )
     return parser.parse_args()
 
 
@@ -126,6 +139,7 @@ class SequenceData():
         self.i7s = None
         self.i5a = None
         self.i7a = None
+        self.se = args.se
         if args.r1_pattern is None:
             self.r1_pattern = "{}_(?:.*)_(R1|READ1|Read1|read1)_\d+.fastq(?:.gz)*"
         else:
@@ -149,7 +163,9 @@ class SequenceData():
                 self.r1 += (pth,)
             elif re.search(self.r2_pattern.format(self.start_name), name):
                 self.r2 += (pth,)
-        if self.r1 == () or self.r2 == ():
+        if not args.se and (self.r1 == () or self.r2 == ()):
+            raise IOError, "There is a problem with the read names for {}.  Ensure you do not have spelling/capitalization errors in your conf file.".format(self.start_name)
+        elif args.se and self.r1 == ():
             raise IOError, "There is a problem with the read names for {}.  Ensure you do not have spelling/capitalization errors in your conf file.".format(self.start_name)
 
     def _get_tag_data(self, conf):
@@ -174,7 +190,8 @@ class SequenceData():
             self.i7s = tags[self.i7]
             self.i7a = conf.get('adapters', 'i7').replace("*", self.i7s)
             # there is no index sequence in this adapter
-            self.i5a = conf.get('adapters', 'i5')
+            if not self.se:
+                self.i5a = conf.get('adapters', 'i5')
 
 
     def __repr__(self):
@@ -190,8 +207,16 @@ class SequenceData():
             self.i5s_revcomp
         )
 
+def build_se_adapters_file(sample):
+    adapters = os.path.join(sample.homedir, 'adapters.fasta')
+    with open(adapters, 'w') as outf:
+        outf.write(">i7\n{}\n".format(
+            sample.i7a
+        ))
+    return adapters
 
-def build_adapters_file(sample):
+
+def build_pe_adapters_file(sample):
     adapters = os.path.join(sample.homedir, 'adapters.fasta')
     with open(adapters, 'w') as outf:
         outf.write(">i5\n{}\n>i7\n{}\n".format(
@@ -201,10 +226,53 @@ def build_adapters_file(sample):
     return adapters
 
 
-def trimmomatic_runner(work):
+def trimmomatic_se_runner(work):
     args, sample = work
     # build sample specific adapters files
-    adapters = build_adapters_file(sample)
+    adapters = build_se_adapters_file(sample)
+    # create dir for stat output
+    stat_output = os.path.join(sample.homedir, 'stats')
+    os.makedirs(stat_output)
+    # create dir for program output
+    sample.trimmed = os.path.join(sample.homedir, 'split-adapter-quality-trimmed')
+    os.makedirs(sample.trimmed)
+    # get all the read data in the untrimmed dir
+    input = []
+    for read in ["READ1"]:
+        input.append(os.path.join(sample.raw_reads, "{}-{}.fastq.gz".format(
+            sample.end_name,
+            read
+        )))
+    output = []
+    for read in ["READ1"]:
+        output.append(os.path.join(sample.trimmed, "{}-{}.fastq.gz".format(
+            sample.end_name,
+            read
+        )))
+    with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(sample.end_name)), 'w') as stat_file:
+        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use Casava >= 1.8
+        cmd = [
+            "java",
+            "-jar",
+            args.trimmomatic,
+            "SE",
+            "-{}".format(args.phred),
+            input[0],
+            output[0],
+            "ILLUMINACLIP:{}:2:30:10".format(adapters),
+            "LEADING:5",
+            "TRAILING:15",
+            "SLIDINGWINDOW:4:15",
+            "MINLEN:{}".format(args.min_len)
+        ]
+        proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stat_file)
+        proc1.communicate()
+
+
+def trimmomatic_pe_runner(work):
+    args, sample = work
+    # build sample specific adapters files
+    adapters = build_pe_adapters_file(sample)
     # create dir for stat output
     stat_output = os.path.join(sample.homedir, 'stats')
     os.makedirs(stat_output)
@@ -231,7 +299,7 @@ def trimmomatic_runner(work):
             "-jar",
             args.trimmomatic,
             "PE",
-            "-phred33",
+            "-{}".format(args.phred),
             input[0],
             input[1],
             output[0],
@@ -268,10 +336,13 @@ def trimmomatic_merger(sample):
 
 def runner(work):
     args, sample = work
-    # run trimmomatic to trim adapter contamination and low qual bases
-    trimmomatic_runner(work)
-    if not args.no_merge:
-        trimmomatic_merger(sample)
+    if not args.se:
+        # run trimmomatic to trim adapter contamination and low qual bases
+        trimmomatic_pe_runner(work)
+        if not args.no_merge:
+            trimmomatic_merger(sample)
+    else:
+        trimmomatic_se_runner(work)
     sys.stdout.write(".")
     sys.stdout.flush()
 
