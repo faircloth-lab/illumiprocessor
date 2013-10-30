@@ -24,8 +24,8 @@ import sys
 import shutil
 import argparse
 import ConfigParser
-from illumiprocessor import core
-from illumiprocessor.log import setup_logging
+from processor import core
+from processor.log import setup_logging
 
 #import pdb
 
