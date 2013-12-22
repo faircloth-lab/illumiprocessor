@@ -40,5 +40,4 @@ Guide
    install
 
 
-
-
+.. include:: links.rst
