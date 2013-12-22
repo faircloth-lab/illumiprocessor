@@ -166,6 +166,41 @@ def trimmomatic_se_runner(work):
         proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stat_file)
         proc1.communicate()
 
+class TestJavaAndTrimmomatic:
+    def __init__(self):
+        cmd = ["java", "-version"]
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.stdout, self.stderr = proc.communicate()
+        self.result_split = self.stderr.strip().split("\n")
+
+    def get_version(self, s):
+        result = re.search('java version "(.*)"', s)
+        return result.groups()[0].split(".")
+
+    def test_install(self):
+        assert self.result_split[0].startswith("java version"), "Java does not appear to be installed"
+
+    def test_version(self):
+        version = self.get_version(self.result_split[0])
+        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"]), "Java does not appear to be 1.6 or 1.7"
+
+    def test_trimmomatic(self, trimmomatic_pth):
+        cmd = ["java", "-jar", trimmomatic_pth]
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.stdout, self.stderr = proc.communicate()
+        assert self.stderr == "Usage: \n       PE [-threads <threads>] [-phred33|-phred64]" + \
+        " [-trimlog <trimLogFile>] [-basein <inputBase> | <inputFile1> <inputFile2>]" + \
+        " [-baseout <outputBase> | <outputFile1P> <outputFile1U> <outputFile2P>" + \
+        " <outputFile2U>] <trimmer1>...\n   or: \n       SE [-threads <threads>]" + \
+        " [-phred33|-phred64] [-trimlog <trimLogFile>] <inputFile> <outputFile> <trimmer1>...\n"
+
+
+def check_dependencies(args):
+    java = TestJavaAndTrimmomatic()
+    java.test_install()
+    java.test_version()
+    java.test_trimmomatic(args.trimmomatic)
+
 
 def trimmomatic_pe_runner(work):
     args, sample = work
