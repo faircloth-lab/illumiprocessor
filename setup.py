@@ -1,5 +1,5 @@
 import illumiprocessor
-from setuptools import setup
+from distutils.core import setup
 
 setup(
         name='illumiprocessor',
@@ -15,6 +15,5 @@ setup(
         ],
         scripts=[
             'bin/illumiprocessor'
-        ],
-        zip_safe=False
+        ]
     )
