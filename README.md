@@ -1,23 +1,62 @@
 # illumiprocessor
 
-[illumiprocessor][1] is a tool to batch process illumina sequencing reads using the
-excellent [trimmomatic][2] package. The program takes a configuration file that is
-formatted in Microsoft Windows INI file format (key:value pairs, see the example file).
+[illumiprocessor][1] is a tool to batch process illumina sequencing reads using
+the excellent [trimmomatic][2] package. The program takes a configuration file
+that is formatted in Microsoft Windows INI file format (key:value pairs, see the
+example file).
 
-[illumiprocessor][1] will trim adapter contamination from SE and PE illumina reads and is
-capable of dealing with double-indexed reads and read trimming (example to come shortly).
-The current version of [illumiprocessor][1] uses [trimmomatic][2] instead of [scythe][3]
-and [sickle][4] (used in v1.x) because we have found the performance of trimmomatic to be
-better, particularly when dealing with double-indexed illumina reads.  However, you may find
-that running [scythe][3] after trimming with [illumiprocessor][1] or [trimmomatic][2] ensures
+[illumiprocessor][1] will trim adapter contamination from SE and PE illumina
+reads and is capable of dealing with double-indexed reads and read trimming
+(example to come shortly). The current version of [illumiprocessor][1] uses
+[trimmomatic][2] instead of [scythe][3] and [sickle][4] (used in v1.x) because
+we have found the performance of trimmomatic to be better, particularly when
+dealing with double-indexed illumina reads.  However, you may find that running
+[scythe][3] after trimming with [illumiprocessor][1] or [trimmomatic][2] ensures
 that every bit of potential adapter contamination is removed.
 
-[illumiprocessor][1] is suited to parallel processing in which each set of illumina reads
-are processed on a separate (physical) compute core.  **[illumiprocessor][1] assumes that all
-fastq files input to the program represent individuals samples (i.e., that you have
-merged mulitple files for each read from the same sample by combining fastq.gz files)**.
+[illumiprocessor][1] is suited to parallel processing in which each set of
+illumina reads are processed on a separate (physical) compute core.
+**[illumiprocessor][1] assumes that all fastq files input to the program
+represent individuals samples (i.e., that you have merged mulitple files for
+each read from the same sample by combining fastq.gz files)**.
 
-To run [illumiprocessor][1], you setup a config file (`<path-to-config-file>`) like:
+## installation
+
+Illumiprocessor uses [trimmomatic][2], which is a JAVA program, **so you need to
+install JAVA for your platform**.
+
+### conda
+
+If you are using [anaconda][https://store.continuum.io/cshop/anaconda/] or the
+[conda][http://docs.continuum.io/conda/] package manager, you can automatically
+install everything you need by editing `~/.condarc` to add the `faircloth-lab`
+repository, so that the file looks like:
+
+    # channel locations. These override conda defaults, i.e., conda will
+    # search *only* the channels listed here, in the order given. Use "default"
+    # to automatically include all default channels.
+
+    channels:
+      - defaults
+      - http://conda.binstar.org/faircloth-lab
+
+Then run:
+
+    conda install illumiprocessor
+
+This will install [trimmomatic][2] and [illumiprocessor][1].
+
+### standard
+
+Ensure that you have installed JAVA.  Install [trimmomatic][2].  Once those are
+completed, download the source, then:
+
+    python setup.py install
+
+## quick-start
+
+To run [illumiprocessor][1], you setup a config file (`<path-to-config-file>`)
+like:
 
     [adapters]
     i7:AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC*ATCTCGTATGCCGTCTTCTGCTTG
@@ -43,7 +82,8 @@ Then you run illumiprocessor against the config file using:
         --config <path-to-config-file> \
         --cores 12
 
-This will output a directory containing reads organised using the following structure:
+This will output a directory containing reads organised using the following
+structure:
 
     sample1-name/
         adapters.fasta
@@ -60,7 +100,13 @@ This will output a directory containing reads organised using the following stru
         ...
     sample3-name
 
+# More information
+
+For more information and a more complete description of all of these steps,
+please see the [documentation][5].
+
 [1]: https://github.com/faircloth-lab/illumiprocessor
 [2]: http://www.usadellab.org/cms/?page=trimmomatic
 [3]: https://github.com/vsbuffalo/scythe
 [4]: https://github.com/najoshi/sickle
+[5]: http://illumiprocessor.readthedocs.org/
