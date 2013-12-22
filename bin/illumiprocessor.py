@@ -8,9 +8,6 @@ Author: Brant Faircloth
 Created by Brant Faircloth on 26 May 2011 14:03 PST (-0800)
 Copyright (c) 2011-2012 Brant C. Faircloth. All rights reserved.
 
-Description:
-
-
 REQUIRES
 --------
 
@@ -24,8 +21,8 @@ import sys
 import shutil
 import argparse
 import ConfigParser
-from processor import core
-from processor.log import setup_logging
+from illumiprocessor import core
+from illumiprocessor.log import setup_logging
 
 #import pdb
 
