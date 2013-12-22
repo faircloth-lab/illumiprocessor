@@ -44,11 +44,13 @@ package here: http://www.java.com/en/download/manual.jsp
 centos linux
 ^^^^^^^^^^^^^
 ::
+
     su -c "yum install java-1.7.0-openjdk"
 
 ubuntu linux
 ^^^^^^^^^^^^
 ::
+
     sudo apt-get install openjdk-7-jre
 
 conda
