@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
         name='illumiprocessor',
-        version=illumiprocessor.__version__,
+        version='2.0.0',
         description='Automated Illumina read trimning using trimmomatic',
         url='https://github.com/faircloth-lab/illumiprocessor',
         author='Brant C. Faircloth',
