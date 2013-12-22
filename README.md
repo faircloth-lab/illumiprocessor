@@ -17,13 +17,30 @@ are processed on a separate (physical) compute core.  **[illumiprocessor][1] ass
 fastq files input to the program represent individuals samples (i.e., that you have
 merged mulitple files for each read from the same sample by combining fastq.gz files)**.
 
-To run [illumiprocessor][1], you do the following:
+To run [illumiprocessor][1], you setup a config file (`<path-to-config-file>`) like:
 
-    python ~/git/illumiprocessor/bin/illumiprocessor.py \
+    [adapters]
+    i7:AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC*ATCTCGTATGCCGTCTTCTGCTTG
+    i5:AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT
+
+    [tag sequences]
+    BFIDT-030:ATGAGGC
+    BFIDT-003:AATACTT
+
+    [tag map]
+    F09-44_ATGAGGC:BFIDT-030
+    F09-96_AATACTT:BFIDT-003
+
+    [names]
+    F09-44_ATGAGGC:F09-44
+    F09-96_AATACTT:F09-96
+
+Then you run illumiprocessor against the config file using:
+
+    illumiprocessor \
         --input <path-to-directory-of-read-files-to-clean> \
         --output <path-to-directory-of-cleaned-reads-to-output> \
         --config <path-to-config-file> \
-        --trimmomatic <path-to-trimmomatic> \
         --cores 12
 
 This will output a directory containing reads organised using the following structure:
@@ -39,6 +56,9 @@ This will output a directory containing reads organised using the following stru
             sample1-name-READ-singleton.fastq.gz
         stats/
             sample1-name-adapter-contam.txt
+    sample2-name/
+        ...
+    sample3-name
 
 [1]: https://github.com/faircloth-lab/illumiprocessor
 [2]: http://www.usadellab.org/cms/?page=trimmomatic
