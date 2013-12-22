@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
         name='illumiprocessor',
-        version='2.0.0',
+        version='2.0.1',
         description='Automated Illumina read trimning using trimmomatic',
         url='https://github.com/faircloth-lab/illumiprocessor',
         author='Brant C. Faircloth',

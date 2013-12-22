@@ -22,6 +22,6 @@ try:
     os.chdir(cwd)
 
 except IOError:
-    __version__ = "2.0.0"
+    __version__ = "2.0.1"
     if not os.getcwd == cwd:
         os.chdir(cwd)
