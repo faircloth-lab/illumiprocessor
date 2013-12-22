@@ -15,11 +15,12 @@ try:
     ]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout, stderr = proc.communicate()
-    if stdout.startswith("fatal:"):
+    if stdout and stdout.startswith("fatal:"):
         raise IOError("{}".format(stdout.strip()))
     else:
         __version__ = "git {}".format(stdout.strip())
     os.chdir(cwd)
+
 except IOError:
     __version__ = "2.0.0"
     if not os.getcwd == cwd:
