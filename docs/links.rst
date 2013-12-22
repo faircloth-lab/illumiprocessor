@@ -1,0 +1,9 @@
+.. _illumiprocessor: https://github.com/faircloth-lab/illumiprocessor
+.. _trimmomatic: http://www.usadellab.org/cms/?page=trimmomatic
+.. _anaconda: https://store.continuum.io/cshop/anaconda/
+.. _conda: http://docs.continuum.io/conda/
+.. _scythe: https://github.com/vsbuffalo/scythe
+.. _sickle: https://github.com/najoshi/sickle
+.. _documentation: http://illumiprocessor.readthedocs.org/
+.. _python: http://python.org/
+.. _source: https://github.com/faircloth-lab/illumiprocessor/releases
