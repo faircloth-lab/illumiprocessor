@@ -27,10 +27,9 @@ install JAVA for your platform**.
 
 ### conda
 
-If you are using [anaconda][https://store.continuum.io/cshop/anaconda/] or the
-[conda][http://docs.continuum.io/conda/] package manager, you can automatically
-install everything you need by editing `~/.condarc` to add the `faircloth-lab`
-repository, so that the file looks like:
+If you are using [anaconda][5] or the [conda][6] package manager, you can
+automatically install everything you need by editing `~/.condarc` to add the
+`faircloth-lab` repository, so that the file looks like:
 
     # channel locations. These override conda defaults, i.e., conda will
     # search *only* the channels listed here, in the order given. Use "default"
@@ -103,10 +102,12 @@ structure:
 # More information
 
 For more information and a more complete description of all of these steps,
-please see the [documentation][5].
+please see the [documentation][7].
 
 [1]: https://github.com/faircloth-lab/illumiprocessor
 [2]: http://www.usadellab.org/cms/?page=trimmomatic
 [3]: https://github.com/vsbuffalo/scythe
 [4]: https://github.com/najoshi/sickle
-[5]: http://illumiprocessor.readthedocs.org/
+[5]: https://store.continuum.io/cshop/anaconda/
+[6]: http://docs.continuum.io/conda/
+[7]: http://illumiprocessor.readthedocs.org/
