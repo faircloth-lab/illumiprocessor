@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 import illumiprocessor
 from distutils.core import setup
 
 setup(
         name='illumiprocessor',
-        version='2.0.1',
+        version='2.0.2',
         description='Automated Illumina read trimning using trimmomatic',
         url='https://github.com/faircloth-lab/illumiprocessor',
         author='Brant C. Faircloth',

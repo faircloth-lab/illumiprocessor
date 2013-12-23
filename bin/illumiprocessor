@@ -8,12 +8,6 @@ Author: Brant Faircloth
 Created by Brant Faircloth on 26 May 2011 14:03 PST (-0800)
 Copyright (c) 2011-2012 Brant C. Faircloth. All rights reserved.
 
-REQUIRES
---------
-
- * python 2.7
- * Trimmomatic
-
 """
 
 

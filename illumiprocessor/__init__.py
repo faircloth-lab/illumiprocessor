@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 import os
 import subprocess
 
@@ -22,6 +25,6 @@ try:
     os.chdir(cwd)
 
 except IOError:
-    __version__ = "2.0.1"
+    __version__ = "2.0.2"
     if not os.getcwd == cwd:
         os.chdir(cwd)
