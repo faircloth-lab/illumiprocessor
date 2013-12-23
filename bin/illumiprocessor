@@ -1,4 +1,4 @@
-#!/Users/bcf/anaconda/bin/python
+#!/usr/bin/env python
 # encoding: utf-8
 
 """
@@ -15,6 +15,7 @@ REQUIRES
  * Trimmomatic
 
 """
+
 
 import os
 import sys
