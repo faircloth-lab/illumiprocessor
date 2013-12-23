@@ -37,7 +37,19 @@ Guide
    :maxdepth: 2
 
    license
+   purpose
    install
+
+
+Project info
+============
+
+.. toctree::
+   :maxdepth: 1
+
+   changelog
+   authors
+   contributors
 
 
 .. include:: links.rst
