@@ -7,3 +7,7 @@
 .. _documentation: http://illumiprocessor.readthedocs.org/
 .. _python: http://python.org/
 .. _source: https://github.com/faircloth-lab/illumiprocessor/releases
+.. _phyluce: https://github.com/faircloth-lab/phyluce
+.. _Casava: http://support.illumina.com/sequencing/sequencing_software/casava.ilmn
+.. _Illumina: http://www.illumina.com
+.. _GATK: http://www.broadinstitute.org/gatk/
