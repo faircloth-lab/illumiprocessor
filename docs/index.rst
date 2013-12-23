@@ -39,6 +39,7 @@ Guide
    license
    purpose
    install
+   usage
 
 
 Project info
