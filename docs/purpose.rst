@@ -1,5 +1,5 @@
-The purpose of illumiprocessor
-==============================
+Purpose
+=======
 
 `Illumina`_ sequencing offers incredible capacity.  Often, biologists wish to
 split this capacity among many samples run in multiplex.  When you do this, and
@@ -15,7 +15,8 @@ output from `Casava`_ that look something like::
     boiga-irregularis_GAGAGTA_L005_R1_001.fastq.gz
     boiga-irregularis_GAGAGTA_L005_R2_001.fastq.gz
 
-These names correspond to a general structure that is::
+These names correspond to a general file structure for each sample that looks
+like::
 
     <name>_<sequence-tag>_<lane>_<read>_<read-file>.fastq.gz
 
@@ -40,20 +41,23 @@ tedious processing by hand (which is bad) or shell scripting, which many people
 are not comfortable with.  When we trim adapters and remove contamination, we
 may also want to do things such as bulk-renaming of the sequence files and
 placing the resulting trimmed data in a static directory structure for
-downstream processing with a package like `phyluce`_.
+downstream processing (like `phyluce`_).
 
-This is why I originally `illumiprocessor`_ - it processess input files of
-`Illumina`_ data, in parallel to:
+This is why I wrote `illumiprocessor`_ - it processess many input files of
+`Illumina`_ data, in parallel, to:
 
 1. rename hundreds of fastq files
-2. trim adapter contamination from input fastq files
-3. trim low quality bases from input fastq files
+2. create a sample-specific, ``adapters.fasta`` file for adapter trimming
+3. trim adapter contamination from input fastq files
+4. trim low quality bases from input fastq files
 
-`illumiprocessor`_ is a parallel wrapper script around a software package
-written in JAVA named `trimmomatic`_.  `trimmomatic`_ is the best adapter and
-quality trimmer we have used and it is developed and maintained by `Björn
-Usadel's group <http://www.usadellab.org>`_.  In my hands, `trimmomatic`_
-outperforms a number of other read trimmers, it is reasonably fast, and it
-offers a lots of nice options.
+`illumiprocessor`_ is a wrapper script around a software package written in JAVA
+named `trimmomatic`_ that runs `trimmomatic`_ against many `Illumina`_ fastq
+files in parallel.
+
+In our hands, `trimmomatic`_ is the best adapter and quality trimmer we have
+used, and it is developed and maintained by `Björn Usadel's group
+<http://www.usadellab.org>`_. `trimmomatic`_ outperforms a number of other read
+trimmers, it is reasonably fast, and it offers a lots of nice trimming options.
 
 .. include:: links.rst

@@ -1,4 +1,5 @@
 Contributors
 =============
 
-* Noor White
+* Mike Harvey (LSU)
+* Noor White (Smithsonian Institution)

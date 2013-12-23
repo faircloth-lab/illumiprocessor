@@ -36,10 +36,10 @@ Guide
 .. toctree::
    :maxdepth: 2
 
-   license
    purpose
    install
    usage
+   disclaimers
 
 
 Project info
@@ -48,6 +48,7 @@ Project info
 .. toctree::
    :maxdepth: 1
 
+   license
    changelog
    authors
    contributors

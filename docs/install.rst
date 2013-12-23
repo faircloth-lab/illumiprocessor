@@ -16,8 +16,8 @@ JAVA
 Illumiprocessor uses `trimmomatic`_, which is a JAVA program.  As a result, you
 need to install JAVA for your platform.  Getting JAVA installed is tricky across
 various platforms and largely beyond the scope of this document, but here are
-some very genreal directions for installing **JAVA 1.7**, which is best suited
-to `illumiprocessor`_ and several other codebases that we use (e.g. current
+some very general directions for installing **JAVA 1.7**, which is best suited
+for `illumiprocessor`_, along several other codebases that we use (e.g. current
 GATK).
 
 Apple OS X
