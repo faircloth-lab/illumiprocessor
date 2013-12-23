@@ -1,39 +1,58 @@
+************
 Installation
-=============
+************
+`illumiprocessor`_ requires the installation of JAVA, `trimmomatic`_, and
+`illumiprocessor`_.  The instructions below assume you are either:
+
+1. running osx
+2. running linux (x86_64 or osx)
+
+We do not support any other platforms, although you should be able to install
+and run `illumiprocessor`_ and its dependencies on various flavors of windows.
 
 JAVA
------
+====
 
 Illumiprocessor uses `trimmomatic`_, which is a JAVA program.  As a result, you
-need to install JAVA for your platform.  This is beyond the scope of this
-document, but here are some pointers.
+need to install JAVA for your platform.  Getting JAVA installed is tricky across
+various platforms and largely beyond the scope of this document, but here are
+some very genreal directions for installing **JAVA 1.7**, which is best suited
+to `illumiprocessor`_ and several other codebases that we use (e.g. current
+GATK).
 
 osx
-^^^
-
-It is best to install JAVA 1.7 on osx, as that version also supports GATK and
-several other useful tools.  To install JAVA 1.7, download and install the
-package here: http://www.java.com/en/download/manual.jsp
+---
+To install JAVA 1.7, download and install the package from Oracle here:
+http://www.java.com/en/download/manual.jsp
 
 centos linux
-^^^^^^^^^^^^^
-::
+------------
+
+You can install the JRE with the following `yum` command::
 
     su -c "yum install java-1.7.0-openjdk"
 
 ubuntu linux
-^^^^^^^^^^^^
-::
+------------
+
+You can install the JRE with the following `apt-get` command::
 
     sudo apt-get install openjdk-7-jre
 
-conda
-------
 
-We use the `anaconda`_ distribution with the `conda`_ package manger to manage
-almost all of our package for `python`_.  There are several reasons for this,
-one being that we can manage lots of **types** of packages with conda.  Another
-is that `conda`_ manages dependencies of packages **very, very well**.
+trimmomatic & illumiprocessor
+=============================
+
+You can install the remaining dependencies in one of two ways:  (1) using
+`conda`_ and (2) manually.  We **strongly suggest** that you use `conda`_, which
+is part of the `anaconda`_ python distribution.  There are several reasons for
+this, one being that we can manage lots of **types** of packages with conda.
+Another is that `conda`_ manages dependencies of packages **very, very well**.
+
+The use of `anaconda`_ in our lab is the default.
+
+installation using conda
+------------------------
 
 If you are using `anaconda`_ and/or the `conda`_ package manager, you can
 automatically install everything you need by editing ``~/.condarc`` to add the
@@ -52,32 +71,30 @@ Then run::
     conda install illumiprocessor
 
 This will install `trimmomatic`_ and `illumiprocessor`_ in standardized
-locations that will work in a number of situations.
+locations that will work in a number of situations.  It will also test the
+installations to ensure they were installed corrected.
 
-standard
----------
+The `trimmomatic`_ `jar` file is installed into your `$ANACONDA_HOME/jar`.
 
-Of course, you can install `illumiprocessor`_ in the standard way.  As above
-you need to ensure that you have:
+
+"manual" installation
+---------------------
+
+Of course, you can install `illumiprocessor`_ in the standard (manual) way.  As
+above you need to ensure that you have:
 
 1. installed JAVA
 2. installed `trimmomatic`_
 
-Once those are completed, you can download the `source`_, then run::
+Once those are completed, you can download the `illumiprocessor`_, then run::
 
     python setup.py install
 
 The ``illumiprocessor`` binary will be where your `python` distribution stores
-binaries, and the libraries will be in the `site-packages` directories for your
+binaries, and the libraries will be in the `site-packages` directory for your
 $PYTHONPATH.
 
-.. _illumiprocessor: https://github.com/faircloth-lab/illumiprocessor
-.. _trimmomatic: http://www.usadellab.org/cms/?page=trimmomatic
-.. _anaconda: https://store.continuum.io/cshop/anaconda/
-.. _conda: http://docs.continuum.io/conda/
-.. _scythe: https://github.com/vsbuffalo/scythe
-.. _sickle: https://github.com/najoshi/sickle
-.. _documentation: http://illumiprocessor.readthedocs.org/
-.. _python: http://python.org/
-.. _source: https://github.com/faircloth-lab/illumiprocessor/releases
+.. caution:: You will need to manually specify the path to `trimmomatic`_ when
+   you run `illumiprocessor`_
 
+.. include:: links.rst
