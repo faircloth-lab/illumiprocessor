@@ -20,19 +20,20 @@ some very genreal directions for installing **JAVA 1.7**, which is best suited
 to `illumiprocessor`_ and several other codebases that we use (e.g. current
 GATK).
 
-osx
----
+Apple OS X
+-----------
+
 To install JAVA 1.7, download and install the package from Oracle here:
 http://www.java.com/en/download/manual.jsp
 
-centos linux
+CentOS linux
 ------------
 
 You can install the JRE with the following `yum` command::
 
     su -c "yum install java-1.7.0-openjdk"
 
-ubuntu linux
+Ubuntu linux
 ------------
 
 You can install the JRE with the following `apt-get` command::
@@ -51,7 +52,7 @@ Another is that `conda`_ manages dependencies of packages **very, very well**.
 
 The use of `anaconda`_ in our lab is the default.
 
-installation using conda
+Installation using conda
 ------------------------
 
 If you are using `anaconda`_ and/or the `conda`_ package manager, you can
@@ -77,7 +78,7 @@ installations to ensure they were installed corrected.
 The `trimmomatic`_ `jar` file is installed into your `$ANACONDA_HOME/jar`.
 
 
-"manual" installation
+"Manual" installation
 ---------------------
 
 Of course, you can install `illumiprocessor`_ in the standard (manual) way.  As
