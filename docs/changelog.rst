@@ -4,6 +4,12 @@
 Changelog
 *********
 
+2.0.2
+=====
+
+* improve docs
+* fix call to /usr/bin/env
+
 2.0.1
 =====
 
