@@ -16,7 +16,11 @@ try:
         "--short",
         "HEAD"
     ]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
     stdout, stderr = proc.communicate()
     if stdout and stdout.startswith("fatal:"):
         raise IOError("{}".format(stdout.strip()))

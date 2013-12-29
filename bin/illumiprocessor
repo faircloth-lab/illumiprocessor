@@ -56,7 +56,8 @@ def is_dir(dirname):
 
 def get_args():
     parser = argparse.ArgumentParser(
-        description='Batch trim Illumina reads for adapter contamination and low quality bases using Trimmomatic',
+        description="Batch trim Illumina reads for adapter contamination and "
+                    "low quality bases using Trimmomatic",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
@@ -74,7 +75,8 @@ def get_args():
     parser.add_argument(
         '--config',
         required=True,
-        help='A configuration file containing the tag:sample mapping and renaming options.'
+        help='A configuration file containing the tag:sample mapping and '
+             'renaming options.'
     )
     parser.add_argument(
         '--trimmomatic',

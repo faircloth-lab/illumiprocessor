@@ -54,7 +54,8 @@ class SequenceData():
         return seq.translate(complement)[::-1]
 
     def _get_read_data(self):
-        all_reads = glob.glob("{}*".format(os.path.join(self.input_dir, self.start_name)))
+        all_reads = glob.glob("{}*".format(os.path.join(
+            self.input_dir, self.start_name)))
         for pth in all_reads:
             name = os.path.basename(pth)
             if re.search(self.r1_pattern.format(self.start_name), name):
@@ -62,9 +63,13 @@ class SequenceData():
             elif re.search(self.r2_pattern.format(self.start_name), name):
                 self.r2 += (pth,)
         if not self.se and (self.r1 == () or self.r2 == ()):
-            raise IOError, "There is a problem with the read names for {}.  Ensure you do not have spelling/capitalization errors in your conf file.".format(self.start_name)
+            raise IOError("There is a problem with the read names for {}. "
+                          "Ensure you do not have spelling/capitalization "
+                          "errors in your conf file.".format(self.start_name))
         elif self.se and self.r1 == ():
-            raise IOError, "There is a problem with the read names for {}.  Ensure you do not have spelling/capitalization errors in your conf file.".format(self.start_name)
+            raise IOError("There is a problem with the read names for {}. "
+                          "Ensure you do not have spelling/capitalization "
+                          "errors in your conf file.".format(self.start_name))
 
     def _get_tag_data(self, conf):
         tags = dict(conf.items('tag sequences'))
@@ -91,7 +96,6 @@ class SequenceData():
             if not self.se:
                 self.i5a = conf.get('adapters', 'i5')
 
-
     def __repr__(self):
         return "<{}.{} object at {}, name={}; i7={},{}; i5={},{}; i5revcomp={}>".format(
             self.__module__,
@@ -104,6 +108,7 @@ class SequenceData():
             self.i5s,
             self.i5s_revcomp
         )
+
 
 def build_se_adapters_file(sample):
     adapters = os.path.join(sample.homedir, 'adapters.fasta')
@@ -132,7 +137,10 @@ def trimmomatic_se_runner(work):
     stat_output = os.path.join(sample.homedir, 'stats')
     os.makedirs(stat_output)
     # create dir for program output
-    sample.trimmed = os.path.join(sample.homedir, 'split-adapter-quality-trimmed')
+    sample.trimmed = os.path.join(
+        sample.homedir,
+        'split-adapter-quality-trimmed'
+    )
     os.makedirs(sample.trimmed)
     # get all the read data in the untrimmed dir
     input = []
@@ -148,7 +156,8 @@ def trimmomatic_se_runner(work):
             read
         )))
     with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(sample.end_name)), 'w') as stat_file:
-        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use Casava >= 1.8
+        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use
+        # Casava >= 1.8
         cmd = [
             "java",
             "-jar",
@@ -166,10 +175,15 @@ def trimmomatic_se_runner(work):
         proc1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stat_file)
         proc1.communicate()
 
+
 class TestJavaAndTrimmomatic:
     def __init__(self):
         cmd = ["java", "-version"]
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         self.stdout, self.stderr = proc.communicate()
         self.result_split = self.stderr.strip().split("\n")
 
@@ -178,15 +192,21 @@ class TestJavaAndTrimmomatic:
         return result.groups()[0].split(".")
 
     def test_install(self):
-        assert self.result_split[0].startswith("java version"), "Java does not appear to be installed"
+        assert self.result_split[0].startswith("java version"), \
+            "Java does not appear to be installed"
 
     def test_version(self):
         version = self.get_version(self.result_split[0])
-        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"]), "Java does not appear to be 1.6 or 1.7"
+        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"]), \
+            "Java does not appear to be 1.6 or 1.7"
 
     def test_trimmomatic(self, trimmomatic_pth):
         cmd = ["java", "-jar", trimmomatic_pth]
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         self.stdout, self.stderr = proc.communicate()
         assert self.stderr == "Usage: \n       PE [-threads <threads>] [-phred33|-phred64]" + \
         " [-trimlog <trimLogFile>] [-basein <inputBase> | <inputFile1> <inputFile2>]" + \
@@ -210,7 +230,10 @@ def trimmomatic_pe_runner(work):
     stat_output = os.path.join(sample.homedir, 'stats')
     os.makedirs(stat_output)
     # create dir for program output
-    sample.trimmed = os.path.join(sample.homedir, 'split-adapter-quality-trimmed')
+    sample.trimmed = os.path.join(
+        sample.homedir,
+        'split-adapter-quality-trimmed'
+    )
     os.makedirs(sample.trimmed)
     # get all the read data in the untrimmed dir
     input = []
@@ -226,7 +249,8 @@ def trimmomatic_pe_runner(work):
             read
         )))
     with open(os.path.join(stat_output, '{}-adapter-contam.txt'.format(sample.end_name)), 'w') as stat_file:
-        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use Casava >= 1.8
+        # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use
+        # Casava >= 1.8
         cmd = [
             "java",
             "-jar",

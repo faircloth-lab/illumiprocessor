@@ -17,6 +17,7 @@ import logging
 
 #import pdb
 
+
 def setup_logging(args):
     import __main__ as main
     import __init__ as init
@@ -24,7 +25,9 @@ def setup_logging(args):
     log = logging.getLogger(my_name)
     console = logging.StreamHandler(sys.stdout)
     if args.log_path is not None:
-        logfile = logging.FileHandler(os.path.join(args.log_path, "{}.log".format(my_name)))
+        logfile = logging.FileHandler(
+            os.path.join(args.log_path, "{}.log".format(my_name))
+        )
     else:
         logfile = logging.FileHandler("{}.log".format(my_name))
     if args.verbosity == "INFO":
