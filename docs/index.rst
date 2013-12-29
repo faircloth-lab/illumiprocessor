@@ -48,6 +48,7 @@ Project info
 .. toctree::
    :maxdepth: 1
 
+   citing
    license
    changelog
    authors
