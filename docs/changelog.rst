@@ -4,6 +4,14 @@
 Changelog
 *********
 
+2.0.3
+=====
+
+* PEP8 cleanup
+* added trove classifiers to setup.py
+* uploaded to pypi
+* fixed small error in doc relative to --r1-pattern and --r2-pattern
+
 2.0.2
 =====
 
