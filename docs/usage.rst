@@ -198,7 +198,7 @@ are::
    sequence tag - the remainder of the file name is filled in using a
    relatively standard wildcard structure.  If this wildcard structure does not
    fit your samples, you can run ``illumiprocessor`` using the ``--r1-pattern``
-   and ``--r1-pattern`` arguments.
+   and ``--r2-pattern`` arguments.
 
 Dual-indexed libraries
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -225,7 +225,7 @@ sample whose fastq files are::
    sequence tag - the remainder of the file name is filled in using a
    relatively standard wildcard structure.  If this wildcard structure does not
    fit your samples, you can run ``illumiprocessor`` using the ``--r1-pattern``
-   and ``--r1-pattern`` arguments.
+   and ``--r2-pattern`` arguments.
 
 [names]
 -------
