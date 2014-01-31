@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name='illumiprocessor',
-    version='2.0.3',
+    version='2.0.4',
     description='Automated Illumina read trimming using trimmomatic',
     url='https://github.com/faircloth-lab/illumiprocessor',
     author='Brant C. Faircloth',
@@ -15,6 +15,12 @@ setup(
     packages=[
         'illumiprocessor'
     ],
+    package_data={
+        'illumiprocessor': [
+            'tests/truht/*.conf',
+            'tests/truht/raw-reads/*.fastq.gz'
+        ]
+    },
     scripts=[
         'bin/illumiprocessor'
     ],
