@@ -16,21 +16,32 @@ import pytest
 import shutil
 import ConfigParser
 from illumiprocessor import core
+import illumiprocessor.__init__ as init
 from illumiprocessor.cli.main import get_trimmomatic_path
+
 
 import pdb
 
 
 class TruHTFakeArgs:
     def __init__(self):
-        self.input = os.path.join(os.getcwd(), "truht/raw-reads")
-        self.output = os.path.join(os.getcwd(), "truht/clean")
+        self.input = os.path.join(
+            os.path.dirname(init.__file__),
+            "tests/truht/raw-reads"
+        )
+        self.output = os.path.join(
+            os.path.dirname(init.__file__),
+            "tests/truht/clean"
+        )
         # remove existing clean reads folder
         try:
             shutil.rmtree(self.output)
         except OSError:
             pass
-        self.config = os.path.join(os.getcwd(), "truht/tru-seq-ht.conf")
+        self.config = os.path.join(
+            os.path.dirname(init.__file__),
+            "tests/truht/tru-seq-ht.conf"
+        )
         self.trimmomatic = get_trimmomatic_path()
         self.min_len = 40
         self.no_merge = False
@@ -46,12 +57,12 @@ class TruHTFakeArgs:
 @pytest.fixture(scope="module")
 def fake_truht_args(request):
     args = TruHTFakeArgs()
-    #def clean():
-    #    try:
-    #        shutil.rmtree(args.output)
-    #    except:
-    #        pass
-    #request.addfinalizer(clean)
+    def clean():
+        try:
+            shutil.rmtree(args.output)
+        except:
+            pass
+    request.addfinalizer(clean)
     return args
 
 
