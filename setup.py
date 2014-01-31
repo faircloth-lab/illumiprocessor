@@ -13,7 +13,9 @@ setup(
     license='BSD',
     platforms='any',
     packages=[
-        'illumiprocessor'
+        'illumiprocessor',
+        'illumiprocessor/cli',
+        'illumiprocessor/tests'
     ],
     package_data={
         'illumiprocessor': [
