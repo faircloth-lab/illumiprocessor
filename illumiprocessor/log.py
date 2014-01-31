@@ -11,16 +11,17 @@ Description:
 
 """
 
+from __future__ import absolute_import
 import os
 import sys
 import logging
+import illumiprocessor.__init__ as init
 
 #import pdb
 
 
 def setup_logging(args):
     import __main__ as main
-    import __init__ as init
     my_name = os.path.basename(os.path.splitext(main.__file__)[0])
     log = logging.getLogger(my_name)
     console = logging.StreamHandler(sys.stdout)
