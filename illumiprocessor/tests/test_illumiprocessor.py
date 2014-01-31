@@ -14,9 +14,6 @@ Created on 31 January 2014 12:36 PST (-0800)
 
 import os
 import glob
-import gzip
-import shutil
-import pytest
 import hashlib
 
 import pdb
