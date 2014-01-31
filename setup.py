@@ -18,8 +18,8 @@ setup(
     ],
     package_data={
         'illumiprocessor': [
-            'tests/truht/*.conf',
-            'tests/truht/raw-reads/*.fastq.gz'
+            'test/truht/*.conf',
+            'test/truht/raw-reads/*.fastq.gz'
         ]
     },
     scripts=[
