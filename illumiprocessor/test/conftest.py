@@ -27,11 +27,11 @@ class TruHTFakeArgs:
     def __init__(self):
         self.input = os.path.join(
             os.path.dirname(init.__file__),
-            "tests/truht/raw-reads"
+            "test/truht/raw-reads"
         )
         self.output = os.path.join(
             os.path.dirname(init.__file__),
-            "tests/truht/clean"
+            "test/truht/clean"
         )
         # remove existing clean reads folder
         try:
@@ -40,7 +40,7 @@ class TruHTFakeArgs:
             pass
         self.config = os.path.join(
             os.path.dirname(init.__file__),
-            "tests/truht/tru-seq-ht.conf"
+            "test/truht/tru-seq-ht.conf"
         )
         self.trimmomatic = get_trimmomatic_path()
         self.min_len = 40
