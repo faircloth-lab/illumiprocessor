@@ -17,9 +17,11 @@ import sys
 import glob
 import string
 import shutil
+import hashlib
 import subprocess
 import multiprocessing
 
+import pdb
 
 class SequenceData():
     def __init__(self, args, conf, start_name, end_name):
@@ -201,6 +203,7 @@ class TestJavaAndTrimmomatic:
             "Java does not appear to be 1.6 or 1.7"
 
     def test_trimmomatic(self, trimmomatic_pth):
+        expected_digest = "82cbc08e1a1a2f2daa3a828da9d92553"
         cmd = ["java", "-jar", trimmomatic_pth]
         proc = subprocess.Popen(
             cmd,
@@ -208,11 +211,8 @@ class TestJavaAndTrimmomatic:
             stderr=subprocess.PIPE
         )
         self.stdout, self.stderr = proc.communicate()
-        assert self.stderr == "Usage: \n       PE [-threads <threads>] [-phred33|-phred64]" + \
-        " [-trimlog <trimLogFile>] [-basein <inputBase> | <inputFile1> <inputFile2>]" + \
-        " [-baseout <outputBase> | <outputFile1P> <outputFile1U> <outputFile2P>" + \
-        " <outputFile2U>] <trimmer1>...\n   or: \n       SE [-threads <threads>]" + \
-        " [-phred33|-phred64] [-trimlog <trimLogFile>] <inputFile> <outputFile> <trimmer1>...\n"
+        observed_digest = hashlib.md5(self.stderr).hexdigest()
+        assert expected_digest == observed_digest
 
 
 def check_dependencies(args):
