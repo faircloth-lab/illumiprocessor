@@ -16,12 +16,6 @@ setup(
         'illumiprocessor',
         'illumiprocessor/cli'
     ],
-    package_data={
-        'illumiprocessor': [
-            'test/truht/*.conf',
-            'test/truht/raw-reads/*.fastq.gz'
-        ]
-    },
     scripts=[
         'bin/illumiprocessor'
     ],

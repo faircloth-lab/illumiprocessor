@@ -16,22 +16,21 @@ import pytest
 import shutil
 import ConfigParser
 from illumiprocessor import core
-import illumiprocessor.__init__ as init
 from illumiprocessor.cli.main import get_trimmomatic_path
 
 
-import pdb
+#import pdb
 
 
 class TruHTFakeArgs:
     def __init__(self):
         self.input = os.path.join(
-            os.path.dirname(init.__file__),
-            "test/truht/raw-reads"
+            os.path.dirname(__file__),
+            "truht/raw-reads"
         )
         self.output = os.path.join(
-            os.path.dirname(init.__file__),
-            "test/truht/clean"
+            os.path.dirname(__file__),
+            "truht/clean"
         )
         # remove existing clean reads folder
         try:
@@ -39,8 +38,8 @@ class TruHTFakeArgs:
         except OSError:
             pass
         self.config = os.path.join(
-            os.path.dirname(init.__file__),
-            "test/truht/tru-seq-ht.conf"
+            os.path.dirname(__file__),
+            "truht/tru-seq-ht.conf"
         )
         self.trimmomatic = get_trimmomatic_path()
         self.min_len = 40
