@@ -16,7 +16,7 @@ import os
 import glob
 import hashlib
 
-#import pdb
+import pdb
 
 
 class TestGetTruHtReads:
@@ -43,29 +43,42 @@ class TestGetTruHtReads:
 
 class TestReadTrimmingResults:
     def check_read_files(self, fake_truht_args, hashes, dir):
-        for file in glob.glob(os.path.join(
-                fake_truht_args.output,
-                dir,
-                "split-adapter-quality-trimmed",
-                "*.fastq.gz"
-        )):
+        files = glob.glob(os.path.join(
+            fake_truht_args.output,
+            dir,
+            "split-adapter-quality-trimmed",
+            "*.fastq.gz"
+        ))
+        for file in files:
             md5 = hashlib.md5(open(file, 'rb').read()).hexdigest()
+            print file
             assert md5 == hashes[os.path.basename(file)]
 
-    def test_read_trimming(self, fake_truht_args):
+    def test_1_read_trimming(self, fake_truht_args):
         from illumiprocessor.main import main
         main(fake_truht_args)
-        test_truht1 = {
+        fake_truht1 = {
             'adapters.fasta': '5868b3e17fc058bd54cb2f4d8445e289',
             'fake-truht1-READ-singleton.fastq.gz': '9c01c7ea1c5c87be1e1df4eb9ed91372',
             'fake-truht1-READ1.fastq.gz': 'dadf96e04afc519f0e375981b369b925',
             'fake-truht1-READ2.fastq.gz': '1ae68e11567670040c2d48dc5d96d9f7',
         }
-        self.check_read_files(fake_truht_args, test_truht1, "test_truht1")
-        test_truht2 = {
+        self.check_read_files(fake_truht_args, fake_truht1, "fake-truht1")
+        fake_truht2 = {
             'adapters.fasta': '1d5a8f37a1bf503743faeaf0f4263394',
             'fake-truht2-READ-singleton.fastq.gz': 'a02633175b2df700a8c8dc1a48ab67cc',
             'fake-truht2-READ1.fastq.gz': 'e513950c3d7766d04457e67405004ac4',
             'fake-truht2-READ2.fastq.gz': '1e1080a9c3bffb6e308dee1e46c5f2aa'
         }
-        self.check_read_files(fake_truht_args, test_truht2, "test_truht2")
+        self.check_read_files(fake_truht_args, fake_truht2, "fake-truht2")
+
+    def test_2_dir_structure(self, fake_truht_args):
+        for dir in ["fake-truht1", "fake-truht2"]:
+            dir_list = os.listdir(os.path.join(fake_truht_args.output, dir))
+            assert dir_list == [
+                'adapters.fasta',
+                'raw-reads',
+                'split-adapter-quality-trimmed',
+                'stats'
+            ]
+
