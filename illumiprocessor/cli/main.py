@@ -13,11 +13,8 @@ Created on 31 January 2014 11:38 PST (-0800)
 
 from __future__ import absolute_import
 import os
-import sys
 import argparse
-import ConfigParser
 from illumiprocessor import core
-from illumiprocessor.log import setup_logging
 
 
 def get_trimmomatic_path():
