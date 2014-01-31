@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from __future__ import absolute_import
 import os
 import subprocess
+
+#import pdb
 
 # get a dynamic version number, if possible.  if not running from git
 # should default to static version
@@ -29,6 +32,6 @@ try:
     os.chdir(cwd)
 
 except:
-    __version__ = "2.0.3"
+    __version__ = "2.0.4"
     if not os.getcwd == cwd:
         os.chdir(cwd)
