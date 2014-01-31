@@ -54,6 +54,24 @@ def is_dir(dirname):
         return dirname
 
 
+def get_trimmomatic_path():
+    try:
+        conda_env = os.environ["CONDA_DEFAULT_ENV"]
+    except KeyError:
+        conda_env = False
+    if conda_env is not False:
+        pth = os.path.abspath(
+            os.path.expanduser(
+                "~/anaconda/envs/{}/jar/trimmomatic.jar".format(conda_env)
+            )
+        )
+    else:
+        pth = os.path.abspath(
+            os.path.expanduser("~/anaconda/jar/trimmomatic.jar")
+        )
+    return pth
+
+
 def get_args():
     parser = argparse.ArgumentParser(
         description="Batch trim Illumina reads for adapter contamination and "
@@ -80,7 +98,7 @@ def get_args():
     )
     parser.add_argument(
         '--trimmomatic',
-        default="~/anaconda/jar/trimmomatic.jar",
+        default=get_trimmomatic_path(),
         action=FullPaths,
         help='The path to the trimmomatic-0.XX.jar file.'
     )
