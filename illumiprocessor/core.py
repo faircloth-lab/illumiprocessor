@@ -11,6 +11,7 @@ Description:
 
 """
 
+from __future__ import absolute_import
 import os
 import re
 import sys
@@ -18,10 +19,44 @@ import glob
 import string
 import shutil
 import hashlib
+import argparse
 import subprocess
 import multiprocessing
 
-import pdb
+#import pdb
+
+
+class FullPaths(argparse.Action):
+    """Expand user- and relative-paths"""
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, os.path.abspath(os.path.expanduser(values)))
+
+
+class CreateDir(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        # get the full path
+        d = os.path.abspath(os.path.expanduser(values))
+        # check to see if directory exists
+        if os.path.exists(d):
+            answer = raw_input("[WARNING] Output directory exists, REMOVE [Y/n]? ")
+            if answer == "Y":
+                shutil.rmtree(d)
+            else:
+                print "[QUIT]"
+                sys.exit()
+        # create the new directory
+        os.makedirs(d)
+        # return the full path
+        setattr(namespace, self.dest, d)
+
+
+def is_dir(dirname):
+    if not os.path.isdir(dirname):
+        msg = "{0} is not a directory".format(dirname)
+        raise argparse.ArgumentTypeError(msg)
+    else:
+        return dirname
+
 
 class SequenceData():
     def __init__(self, args, conf, start_name, end_name):
