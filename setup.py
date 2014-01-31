@@ -14,8 +14,7 @@ setup(
     platforms='any',
     packages=[
         'illumiprocessor',
-        'illumiprocessor/cli',
-        'illumiprocessor/tests'
+        'illumiprocessor/cli'
     ],
     package_data={
         'illumiprocessor': [
