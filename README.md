@@ -1,4 +1,4 @@
-# illumiprocessor
+# illumiprocessor [![Build Status](https://travis-ci.org/faircloth-lab/illumiprocessor.png?branch=master)](https://travis-ci.org/faircloth-lab/illumiprocessor)
 
 [illumiprocessor][1] is a tool to batch process illumina sequencing reads using
 the excellent [trimmomatic][2] package. The program takes a configuration file
