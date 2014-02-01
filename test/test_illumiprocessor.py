@@ -75,10 +75,10 @@ class TestReadTrimmingResults:
     def test_2_dir_structure(self, fake_truht_args):
         for dir in ["fake-truht1", "fake-truht2"]:
             dir_list = os.listdir(os.path.join(fake_truht_args.output, dir))
-            assert dir_list == [
+            assert set(dir_list) == set([
                 'adapters.fasta',
                 'raw-reads',
                 'split-adapter-quality-trimmed',
                 'stats'
-            ]
+            ])
 
