@@ -32,6 +32,6 @@ try:
     os.chdir(cwd)
 
 except:
-    __version__ = "2.0.5"
+    __version__ = "2.0.6"
     if not os.getcwd == cwd:
         os.chdir(cwd)
