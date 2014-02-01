@@ -41,6 +41,94 @@ class TestGetTruHtReads:
         assert set(observed_r2) == expected_r2
 
 
+class TestS1SequenceData:
+    def test_home_dir(self, s1):
+        assert s1.homedir == os.path.join(
+            os.path.dirname(__file__),
+            "truht/clean/fake-truht1"
+            )
+
+    def test_s1_i5(self, s1):
+        assert s1.i5 == 'i5-06_F'
+
+    def test_s1_i5a(self, s1):
+        assert s1.i5a == 'AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGTTGGCTGTGTAGATCTCGGTGGTCGCCGTATCATT'
+
+    def test_s1_i5s(self, s1):
+        assert s1.i5s == 'AGTTGGCT'
+
+    def test_s1_i5s_revcomp(self, s1):
+        assert s1.i5s_revcomp is True
+
+    def test_s1_i7(self, s1):
+        assert s1.i7 == 'i7-09_11'
+
+    def test_s1_i7a(self, s1):
+        assert s1.i7a == 'GATCGGAAGAGCACACGTCTGAACTCCAGTCACATATGCGCATCTCGTATGCCGTCTTCTGCTTG'
+
+    def test_s1_i7s(self, s1):
+        assert s1.i7s == 'ATATGCGC'
+
+    def test_s1_r1_pattern(self, s1):
+        assert s1.r1_pattern == """{}_(?:.*)_(R1|READ1|Read1|read1)_\\d+.fastq(?:.gz)*"""
+
+    def test_s1_r2_pattern(self, s1):
+        assert s1.r2_pattern == """{}_(?:.*)_(R2|READ2|Read2|read2)_\\d+.fastq(?:.gz)*"""
+
+    def test_s1_se(self, s1):
+        assert s1.se is False
+
+    def test_s1_start_name(self, s1):
+        assert s1.start_name == 'fake-truht_S1'
+
+    def test_s1_end_name(self, s1):
+        assert s1.end_name == 'fake-truht1'
+
+
+class TestS2SequenceData:
+    def test_home_dir(self, s2):
+        assert s2.homedir == os.path.join(
+            os.path.dirname(__file__),
+            "truht/clean/fake-truht2"
+            )
+
+    def test_s2_i5(self, s2):
+        assert s2.i5 == 'i5-06_F'
+
+    def test_s2_i5a(self, s2):
+        assert s2.i5a == 'AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGTTGGCTGTGTAGATCTCGGTGGTCGCCGTATCATT'
+
+    def test_s2_i5s(self, s2):
+        assert s2.i5s == 'AGTTGGCT'
+
+    def test_s2_i5s_revcomp(self, s2):
+        assert s2.i5s_revcomp is True
+
+    def test_s2_i7(self, s2):
+        assert s2.i7 == 'i7-09_08'
+
+    def test_s2_i7a(self, s2):
+        assert s2.i7a == 'GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGTAGGTTATCTCGTATGCCGTCTTCTGCTTG'
+
+    def test_s2_i7s(self, s2):
+        assert s2.i7s == 'CGTAGGTT'
+
+    def test_s2_r1_pattern(self, s2):
+        assert s2.r1_pattern == """{}_(?:.*)_(R1|READ1|Read1|read1)_\\d+.fastq(?:.gz)*"""
+
+    def test_s2_r2_pattern(self, s2):
+        assert s2.r2_pattern == """{}_(?:.*)_(R2|READ2|Read2|read2)_\\d+.fastq(?:.gz)*"""
+
+    def test_s2_se(self, s2):
+        assert s2.se is False
+
+    def test_s2_start_name(self, s2):
+        assert s2.start_name == 'fake-truht_S2'
+
+    def test_s2_end_name(self, s2):
+        assert s2.end_name == 'fake-truht2'
+
+
 class TestReadTrimmingResults:
     def check_read_files(self, fake_truht_args, hashes, dir):
         files = glob.glob(os.path.join(
@@ -81,4 +169,3 @@ class TestReadTrimmingResults:
                 'split-adapter-quality-trimmed',
                 'stats'
             ])
-

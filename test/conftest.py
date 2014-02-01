@@ -81,3 +81,38 @@ def fake_truht_reads():
             end_name)
         )
     return reads
+
+
+@pytest.fixture(scope="module")
+def s1():
+    args = TruHTFakeArgs()
+    conf = ConfigParser.ConfigParser()
+    # preserve case of entries & read
+    conf.optionxform = str
+    conf.read(args.config)
+    reads = []
+    for start_name, end_name in conf.items('names'):
+        reads.append(core.SequenceData(
+            args,
+            conf,
+            start_name,
+            end_name)
+        )
+    return reads[0]
+
+@pytest.fixture(scope="module")
+def s2():
+    args = TruHTFakeArgs()
+    conf = ConfigParser.ConfigParser()
+    # preserve case of entries & read
+    conf.optionxform = str
+    conf.read(args.config)
+    reads = []
+    for start_name, end_name in conf.items('names'):
+        reads.append(core.SequenceData(
+            args,
+            conf,
+            start_name,
+            end_name)
+        )
+    return reads[1]
