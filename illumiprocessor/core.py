@@ -23,7 +23,7 @@ import argparse
 import subprocess
 import multiprocessing
 
-#import pdb
+import pdb
 
 
 class FullPaths(argparse.Action):
@@ -238,7 +238,6 @@ class TestJavaAndTrimmomatic:
             "Java does not appear to be 1.6 or 1.7"
 
     def test_trimmomatic(self, trimmomatic_pth):
-        expected_digest = "82cbc08e1a1a2f2daa3a828da9d92553"
         cmd = ["java", "-jar", trimmomatic_pth]
         proc = subprocess.Popen(
             cmd,
@@ -246,8 +245,11 @@ class TestJavaAndTrimmomatic:
             stderr=subprocess.PIPE
         )
         self.stdout, self.stderr = proc.communicate()
-        observed_digest = hashlib.md5(self.stderr).hexdigest()
-        assert expected_digest == observed_digest
+        # Looks like trimmomatic does not report a version number in any
+        # read way, so just check start of output to ensure it appears to be
+        # what we want.
+        assert self.stderr.startswith("Usage: "), \
+            "Trimmomatic does not appear to be installed"
 
 
 def check_dependencies(args):
