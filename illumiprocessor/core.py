@@ -26,6 +26,36 @@ import multiprocessing
 import pdb
 
 
+## TruSeq V2 Kit 2nd set of indexed adapters
+iFiveDict= {}
+#index 13
+iFiveDict["AGTCAA"] = 'CAATCTCGTATGCCGTCTTCTGCTTG'
+#index 14
+iFiveDict["AGTTCC"] = 'GTATCTCGTATGCCGTCTTCTGCTTG'
+#index 15
+iFiveDict["ATGTCA"] = 'GAATCTCGTATGCCGTCTTCTGCTTG'
+#index 16
+iFiveDict["CCGTCC"] = 'CGATCTCGTATGCCGTCTTCTGCTTG'
+#index 18
+iFiveDict["GTCCGC"] = 'ACATCTCGTATGCCGTCTTCTGCTTG'
+#index 19
+iFiveDict["GTGAAA"] = 'CGATCTCGTATGCCGTCTTCTGCTTG'
+#index 20
+iFiveDict["GTGGCC"] = 'TTATCTCGTATGCCGTCTTCTGCTTG'
+#index 21
+iFiveDict["GTTTCG"] = 'GAATCTCGTATGCCGTCTTCTGCTTG'
+#index 22
+iFiveDict["CGTACG"] = 'TAATCTCGTATGCCGTCTTCTGCTTG'
+#index 23
+iFiveDict["GAGTGG"] = 'ATATCTCGTATGCCGTCTTCTGCTTG'
+#index 25
+iFiveDict["ACTGAT"] = 'ATATCTCGTATGCCGTCTTCTGCTTG'
+#index 27
+iFiveDict["ATTCCT"] = 'TTATCTCGTATGCCGTCTTCTGCTTG'
+
+
+
+
 class FullPaths(argparse.Action):
     """Expand user- and relative-paths"""
     def __call__(self, parser, namespace, values, option_string=None):
@@ -128,7 +158,11 @@ class SequenceData():
         else:
             self.i7 = combo
             self.i7s = tags[self.i7]
-            self.i7a = conf.get('adapters', 'i7').replace("*", self.i7s)
+            p1, p2 = conf.get('adapters', 'i7').split('*')
+            if self.i7s in iFiveDict:
+                self.i7a = p1 + self.i7s + iFiveDict[self.i7s]
+            else:
+                self.i7a = conf.get('adapters', 'i7').replace("*", self.i7s)
             # there is no index sequence in this adapter
             if not self.se:
                 self.i5a = conf.get('adapters', 'i5')
