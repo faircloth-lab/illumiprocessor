@@ -91,8 +91,7 @@ class SequenceData():
         return seq.translate(complement)[::-1]
 
     def _get_read_data(self):
-        all_reads = glob.glob("{}*".format(os.path.join(
-            self.input_dir, self.start_name)))
+        all_reads = glob.glob(os.path.join(self.input_dir, "*{}*".format(self.start_name)))
         for pth in all_reads:
             name = os.path.basename(pth)
             if re.search(self.r1_pattern.format(self.start_name), name):
