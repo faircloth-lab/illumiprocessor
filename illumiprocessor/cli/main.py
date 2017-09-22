@@ -19,13 +19,13 @@ from illumiprocessor import core
 
 def get_trimmomatic_path():
     try:
-        conda_env = os.environ["CONDA_DEFAULT_ENV"]
+        conda_prefix = os.environ["CONDA_PREFIX"]
     except KeyError:
         conda_env = False
     if conda_env is not False:
         pth = os.path.abspath(
             os.path.expanduser(
-                "~/anaconda/envs/{}/jar/trimmomatic.jar".format(conda_env)
+                "{}/jar/trimmomatic.jar".format(conda_prefix)
             )
         )
     else:
