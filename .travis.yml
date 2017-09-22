@@ -20,7 +20,7 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install conda packages
 install:
-  - conda install --yes -c https://conda.binstar.org/faircloth-lab python=$TRAVIS_PYTHON_VERSION biopython=1.62 pytest=2.4.2 trimmomatic
+  - conda install --yes -c https://conda.anaconda.org/faircloth-lab python=$TRAVIS_PYTHON_VERSION biopython=1.62 pytest=2.4.2 trimmomatic
   - python setup.py install
 
 # Run test
