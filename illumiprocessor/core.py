@@ -233,7 +233,7 @@ class TestJavaAndTrimmomatic:
 
     def test_version(self):
         version = self.get_version(self.result_split[0])
-        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"]), \
+        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"] or version[:2] == ["1", "8"]), \
             "Java does not appear to be 1.6 or 1.7"
 
     def test_trimmomatic(self, trimmomatic_pth):
