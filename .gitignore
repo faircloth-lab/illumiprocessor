@@ -3,3 +3,7 @@ py.log
 .DS_Store
 build/
 _build/
+.pytest_cache/
+*.log
+dist
+illumiprocessor.egg-info/

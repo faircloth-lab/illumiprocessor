@@ -195,8 +195,6 @@ def trimmomatic_se_runner(work):
         # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use
         # Casava >= 1.8
         cmd = [
-            "java",
-            "-jar",
             args.trimmomatic,
             "SE",
             "-{}".format(args.phred),
@@ -223,21 +221,8 @@ class TestJavaAndTrimmomatic:
         self.stdout, self.stderr = proc.communicate()
         self.result_split = self.stderr.strip().split("\n")
 
-    def get_version(self, s):
-        result = re.search('java version "(.*)"', s)
-        return result.groups()[0].split(".")
-
-    def test_install(self):
-        assert self.result_split[0].startswith("java version"), \
-            "Java does not appear to be installed"
-
-    def test_version(self):
-        version = self.get_version(self.result_split[0])
-        assert (version[:2] == ["1", "6"] or version[:2] == ["1", "7"] or version[:2] == ["1", "8"]), \
-            "Java does not appear to be 1.6, 1.7, or 1.8"
-
     def test_trimmomatic(self, trimmomatic_pth):
-        cmd = ["java", "-jar", trimmomatic_pth]
+        cmd = [trimmomatic_pth]
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -253,8 +238,6 @@ class TestJavaAndTrimmomatic:
 
 def check_dependencies(args):
     java = TestJavaAndTrimmomatic()
-    java.test_install()
-    java.test_version()
     java.test_trimmomatic(args.trimmomatic)
 
 
@@ -288,8 +271,6 @@ def trimmomatic_pe_runner(work):
         # Casava >= 1.8 is Sanger encoded "-phred33" - we almost always use
         # Casava >= 1.8
         cmd = [
-            "java",
-            "-jar",
             args.trimmomatic,
             "PE",
             "-{}".format(args.phred),

@@ -14,25 +14,15 @@ Created on 31 January 2014 11:38 PST (-0800)
 from __future__ import absolute_import
 import os
 import argparse
+import subprocess
 from illumiprocessor import core
+from illumiprocessor.pth import get_user_path
+
+import pdb
 
 
 def get_trimmomatic_path():
-    try:
-        conda_prefix = os.environ["CONDA_PREFIX"]
-    except KeyError:
-        conda_env = False
-    if conda_env is not False:
-        pth = os.path.abspath(
-            os.path.expanduser(
-                "{}/jar/trimmomatic.jar".format(conda_prefix)
-            )
-        )
-    else:
-        pth = os.path.abspath(
-            os.path.expanduser("~/anaconda/jar/trimmomatic.jar")
-        )
-    return pth
+    return get_user_path("executables", "trimmomatic")
 
 
 def get_args():

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from distutils.core import setup
+from setuptools import setup
+from itero import __version__
 
 setup(
     name='illumiprocessor',
-    version='2.0.6',
+    version=__version__,
     description='Automated Illumina read trimming using trimmomatic',
     url='https://github.com/faircloth-lab/illumiprocessor',
     author='Brant C. Faircloth',
@@ -13,12 +14,10 @@ setup(
     license='BSD',
     platforms='any',
     packages=[
-        'illumiprocessor',
-        'illumiprocessor/cli'
+        'illumiprocessor', 'illumiprocessor.cli',
     ],
-    scripts=[
-        'bin/illumiprocessor'
-    ],
+    data_files=[('config', ['config/illumiprocessor.conf'])],
+    scripts=['bin/illumiprocessor'],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
@@ -29,4 +28,4 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
-    )
+)
