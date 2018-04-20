@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from setuptools import setup
-from itero import __version__
+from illumiprocessor import __version__
 
 setup(
     name='illumiprocessor',
