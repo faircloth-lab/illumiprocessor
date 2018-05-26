@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 from setuptools import setup
+from illumiprocessor import __version__
 
 setup(
     name='illumiprocessor',
-    version="2.0.9",
+    version=__version__,
     description='Automated Illumina read trimming using trimmomatic',
     url='https://github.com/faircloth-lab/illumiprocessor',
     author='Brant C. Faircloth',
