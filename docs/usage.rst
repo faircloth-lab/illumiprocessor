@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 *********************
 Using illumiprocessor
 *********************
@@ -356,4 +358,3 @@ contains all of the paired reads that lost their "mate" (the other member of
 the pair) due to trimming.  `trimmomatic`_ outputs these reads separately, but
 `illumiprocessor`_ combines them together in a single file.
 
-.. include:: links.rst

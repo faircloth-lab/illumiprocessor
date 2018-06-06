@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 Purpose
 =======
 
@@ -59,5 +61,3 @@ In our hands, `trimmomatic`_ is the best adapter and quality trimmer we have
 used, and it is developed and maintained by `Björn Usadel's group
 <http://www.usadellab.org>`_. `trimmomatic`_ outperforms a number of other read
 trimmers, it is reasonably fast, and it offers a lots of nice trimming options.
-
-.. include:: links.rst
