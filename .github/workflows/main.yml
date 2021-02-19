@@ -25,11 +25,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2.0.1
-
+        with:
+          auto-update-conda: true
+          python-version: 3.6
       - name: Conda info
         shell: bash -l {0}
         run: conda info
-        
+      - name: Get bioconda
+        run: |
+          conda config --add channels defaults &&
+          conda config --add channels bioconda &&
+          conda config --add channels conda-forge
+          
       # Runs a single command using the runners shell
       #- name: Run a one-line script
       #  run: echo Hello, world!
