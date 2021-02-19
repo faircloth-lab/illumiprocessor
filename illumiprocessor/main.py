@@ -11,9 +11,9 @@ LICENSE.txt for more information.
 Created on 31 January 2014 12:26 PST (-0800)
 """
 
-from __future__ import absolute_import
+
 import sys
-import ConfigParser
+import configparser
 from illumiprocessor import core
 from illumiprocessor.log import setup_logging
 
@@ -23,14 +23,14 @@ def main(args):
     # setup logging
     log, my_name = setup_logging(args)
     # setup config instance
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     # preserve case of entries & read
     conf.optionxform = str
     conf.read(args.config)
     # setup multiprocessing
     pool = core.setup_multiprocessing(args)
     reads = []
-    for start_name, end_name in conf.items('names'):
+    for start_name, end_name in conf.items("names"):
         reads.append(core.SequenceData(args, conf, start_name, end_name))
     # create the output directory if not exists
     core.create_new_dirs(reads)
@@ -44,8 +44,8 @@ def main(args):
     if pool is not None:
         pool.map(core.runner, work)
     else:
-        map(core.runner, work)
+        list(map(core.runner, work))
     # push the output down to next line
-    print ""
+    print("")
     text = " Completed {} ".format(my_name)
     log.info(text.center(65, "="))
