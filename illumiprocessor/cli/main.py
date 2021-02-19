@@ -12,13 +12,11 @@ Created on 31 January 2014 11:38 PST (-0800)
 """
 
 
-import os
 import argparse
-import subprocess
 from illumiprocessor import core
 from illumiprocessor.pth import get_user_path
 
-import pdb
+# import pdb
 
 
 def get_trimmomatic_path():

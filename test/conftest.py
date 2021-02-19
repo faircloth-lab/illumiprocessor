@@ -51,7 +51,7 @@ def fake_truht_args(request):
     def clean():
         try:
             shutil.rmtree(args.output)
-        except:
+        except OSError:
             pass
 
     request.addfinalizer(clean)
