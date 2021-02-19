@@ -38,6 +38,9 @@ jobs:
           conda config --add channels conda-forge
       - name: Install packages from bioconda
         run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
+      - name: Test with pytest
+        run: |
+          pytest -vv
           
       # Runs a single command using the runners shell
       #- name: Run a one-line script
