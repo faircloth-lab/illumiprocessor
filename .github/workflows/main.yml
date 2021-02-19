@@ -19,7 +19,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash -l {0}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -28,20 +30,25 @@ jobs:
         with:
           auto-update-conda: true
           python-version: 3.6
-      - name: Conda info
-        shell: bash -l {0}
-        run: conda info
-      - name: Get bioconda
+          channels: conda-forge, bioconda
+      - name: Conda Info
         run: |
-          conda config --add channels defaults &&
-          conda config --add channels bioconda &&
-          conda config --add channels conda-forge
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
       - name: Install packages from bioconda
         run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
-      - name: Test with pytest
+      - name: Check Package Installation
         run: |
-          pytest -vv
-          
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+      - name: Check binary
+        run: |
+          which pytest
+          which java
       # Runs a single command using the runners shell
       #- name: Run a one-line script
       #  run: echo Hello, world!
