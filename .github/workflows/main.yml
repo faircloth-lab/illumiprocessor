@@ -36,8 +36,7 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('etc/example-environment.yml') }}
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{hashFiles('etc/example-environment.yml') }}
       # we'll use the handy conda incubator miniconda package
       - uses: conda-incubator/setup-miniconda@v2.0.1
         with:
@@ -45,11 +44,6 @@ jobs:
           python-version: 3.6
           channels: conda-forge, bioconda
           environment-file: etc/environment.yml
-      - run: |
-          conda info
-          conda list
-      #- name: Install dependencies using conda
-      #  run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
       - name: Run pytest
         run: |
           pytest -vv illumiprocessor/
