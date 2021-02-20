@@ -33,16 +33,12 @@ jobs:
           auto-update-conda: true
           python-version: 3.6
           channels: conda-forge, bioconda
-      - name: Install dependencies using conda
-        run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
-      - name: Check Package Installation
-        run: |
+          environment-file: etc/environment.yml
+      - run: |
           conda info
           conda list
-          conda config --show-sources
-          conda config --show
+      #- name: Install dependencies using conda
+      #  run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
       - name: Run pytest
         run: |
-          pwd
-          ls
           pytest -vv illumiprocessor/
