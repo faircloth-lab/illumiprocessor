@@ -1,3 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+
 dependencies:
   - trimmomatic=0.39
   - openjdk=11.0.8
