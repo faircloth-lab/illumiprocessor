@@ -43,7 +43,7 @@ jobs:
           conda config --show
       - name: Update PYTHONPATH
         run: |
-          echo "$GITHUB_WORKSPACE/" >> $PYTHONPATH
+          echo "$HOME/work/illumiprocessor/illumiprocessor" >> $PYTHONPATH
           echo $PYTHONPATH
       - name: Run pytest
         run: |
