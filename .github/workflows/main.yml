@@ -38,7 +38,7 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{hashFiles('etc/example-environment.yml') }}
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{hashFiles('etc/environment.yml') }}
       # we'll use the handy conda incubator miniconda package
       - uses: conda-incubator/setup-miniconda@v2.0.1
         with:
