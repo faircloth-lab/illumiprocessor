@@ -16,7 +16,7 @@ on:
 jobs:
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: [ ubuntu-latest, macos-latest ]
     # If we set the default shell here, it catches the activated conda
     # and we don't need to keep calling it.
     defaults:
