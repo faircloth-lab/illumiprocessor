@@ -44,7 +44,6 @@ jobs:
         with:
           auto-update-conda: true
           python-version: 3.6
-          channels: conda-forge, bioconda
           environment-file: etc/environment.yml
       - name: Run pytest
         run: |
