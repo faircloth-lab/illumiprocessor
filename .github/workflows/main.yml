@@ -43,4 +43,6 @@ jobs:
           conda config --show
       - name: Run pytest
         run: |
-          pytest -vv test/
+          pwd
+          ls
+          pytest -vv illumiprocessor/
