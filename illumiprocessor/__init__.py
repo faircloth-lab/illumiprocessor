@@ -1,6 +1,4 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from __future__ import absolute_import
-
-__version__ = "2.0.9"
+__version__ = "2.10"

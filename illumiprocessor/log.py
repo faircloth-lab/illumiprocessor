@@ -11,17 +11,18 @@ Description:
 
 """
 
-from __future__ import absolute_import
+
 import os
 import sys
 import logging
 import illumiprocessor.__init__ as init
 
-#import pdb
+# import pdb
 
 
 def setup_logging(args):
     import __main__ as main
+
     my_name = os.path.basename(os.path.splitext(main.__file__)[0])
     log = logging.getLogger(my_name)
     console = logging.StreamHandler(sys.stdout)
@@ -43,7 +44,9 @@ def setup_logging(args):
         log.setLevel(logging.CRITICAL)
         console.setLevel(logging.CRITICAL)
         logfile.setLevel(logging.CRITICAL)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     console.setFormatter(formatter)
     logfile.setFormatter(formatter)
     log.addHandler(console)

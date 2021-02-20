@@ -11,16 +11,16 @@ on:
     branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-    tags:
-      description: 'Test scenario tags' 
+  workflow_dispatch: 
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    # If we set the default shell here, it catches the activated conda
+    # and we don't need to keep calling it.
     defaults:
       run:
         shell: bash -l {0}
@@ -28,41 +28,23 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      # setup cache for conda files
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if 
+          # etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key:
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{hashFiles('etc/example-environment.yml') }}
+      # we'll use the handy conda incubator miniconda package
       - uses: conda-incubator/setup-miniconda@v2.0.1
         with:
           auto-update-conda: true
           python-version: 3.6
-          channels: conda-forge, bioconda
-      - name: Conda Info
+          environment-file: etc/environment.yml
+      - name: Run pytest
         run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-      - name: Install packages from bioconda
-        run: conda install trimmomatic=0.39 openjdk=11.0.8 pytest=6.2.2
-      - name: Check Package Installation
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-      - name: Check binary
-        run: |
-          which pytest
-          which java
-      - name: Where are we?
-        run: |
-          pwd
-      - name: Test
-        run: |
-          pytest -vv
-      # Runs a single command using the runners shell
-      #- name: Run a one-line script
-      #  run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      #- name: Run a multi-line script
-      #  run: |
-      #    echo Add other actions to build,
-      #    echo test, and deploy your project.
+          pytest -vv illumiprocessor/

@@ -22,6 +22,4 @@ http://continuum.io and available under a 3-clause BSD license.
 """
 
 
-from __future__ import absolute_import
-
 from illumiprocessor.cli.main import main

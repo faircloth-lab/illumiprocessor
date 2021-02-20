@@ -11,25 +11,30 @@ Created on 14 April 2018 16:12 CDT (-0500)
 
 import os
 import sys
-import ConfigParser
+import configparser
 
-#import pdb
+# import pdb
 
 
 def get_user_path(program, binary, package_only=False):
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     # make case sensitive
     config.optionxform = str
     if package_only:
-        config.read(os.path.join(sys.prefix, 'config/illumiprocessor.conf'))
+        config.read(os.path.join(sys.prefix, "config/illumiprocessor.conf"))
     else:
-        config.read([
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), '../config/illumiprocessor.conf'),
-            os.path.join(sys.prefix, 'config/illumiprocessor.conf'),
-            os.path.expanduser('~/.illumiprocessor.conf')
-        ])
+        config.read(
+            [
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    "../config/illumiprocessor.conf",
+                ),
+                os.path.join(sys.prefix, "config/illumiprocessor.conf"),
+                os.path.expanduser("~/.illumiprocessor.conf"),
+            ]
+        )
     # ensure program is in list
-    #pdb.set_trace()
+    # pdb.set_trace()
     pth = config.get(program, binary)
     # expand path as necessary - replace CONDA variable placeholder
     # with sys.prefix, otherwise default to normal path expansion

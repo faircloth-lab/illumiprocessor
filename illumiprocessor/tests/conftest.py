@@ -14,33 +14,24 @@ Created on 31 January 2014 12:43 PST (-0800)
 import os
 import pytest
 import shutil
-import ConfigParser
+import configparser
 from illumiprocessor import core
 from illumiprocessor.cli.main import get_trimmomatic_path
 
 
-#import pdb
+# import pdb
 
 
 class TruHTFakeArgs:
     def __init__(self):
-        self.input = os.path.join(
-            os.path.dirname(__file__),
-            "truht/raw-reads"
-        )
-        self.output = os.path.join(
-            os.path.dirname(__file__),
-            "truht/clean"
-        )
+        self.input = os.path.join(os.path.dirname(__file__), "truht/raw-reads")
+        self.output = os.path.join(os.path.dirname(__file__), "truht/clean")
         # remove existing clean reads folder
         try:
             shutil.rmtree(self.output)
         except OSError:
             pass
-        self.config = os.path.join(
-            os.path.dirname(__file__),
-            "truht/tru-seq-ht.conf"
-        )
+        self.config = os.path.join(os.path.dirname(__file__), "truht/tru-seq-ht.conf")
         self.trimmomatic = get_trimmomatic_path()
         self.min_len = 40
         self.no_merge = False
@@ -56,11 +47,13 @@ class TruHTFakeArgs:
 @pytest.fixture(scope="module")
 def fake_truht_args(request):
     args = TruHTFakeArgs()
+
     def clean():
         try:
             shutil.rmtree(args.output)
-        except:
+        except OSError:
             pass
+
     request.addfinalizer(clean)
     return args
 
@@ -68,51 +61,37 @@ def fake_truht_args(request):
 @pytest.fixture(scope="module")
 def fake_truht_reads():
     args = TruHTFakeArgs()
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     # preserve case of entries & read
     conf.optionxform = str
     conf.read(args.config)
     reads = []
-    for start_name, end_name in conf.items('names'):
-        reads.append(core.SequenceData(
-            args,
-            conf,
-            start_name,
-            end_name)
-        )
+    for start_name, end_name in conf.items("names"):
+        reads.append(core.SequenceData(args, conf, start_name, end_name))
     return reads
 
 
 @pytest.fixture(scope="module")
 def s1():
     args = TruHTFakeArgs()
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     # preserve case of entries & read
     conf.optionxform = str
     conf.read(args.config)
     reads = []
-    for start_name, end_name in conf.items('names'):
-        reads.append(core.SequenceData(
-            args,
-            conf,
-            start_name,
-            end_name)
-        )
+    for start_name, end_name in conf.items("names"):
+        reads.append(core.SequenceData(args, conf, start_name, end_name))
     return reads[0]
+
 
 @pytest.fixture(scope="module")
 def s2():
     args = TruHTFakeArgs()
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     # preserve case of entries & read
     conf.optionxform = str
     conf.read(args.config)
     reads = []
-    for start_name, end_name in conf.items('names'):
-        reads.append(core.SequenceData(
-            args,
-            conf,
-            start_name,
-            end_name)
-        )
+    for start_name, end_name in conf.items("names"):
+        reads.append(core.SequenceData(args, conf, start_name, end_name))
     return reads[1]

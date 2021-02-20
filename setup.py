@@ -2,22 +2,23 @@
 # encoding: utf-8
 
 from setuptools import setup
-from illumiprocessor import __version__
+import illumiprocessor
 
 setup(
-    name='illumiprocessor',
-    version=__version__,
-    description='Automated Illumina read trimming using trimmomatic',
-    url='https://github.com/faircloth-lab/illumiprocessor',
-    author='Brant C. Faircloth',
-    author_email='borg@faircloth-lab.org',
-    license='BSD',
-    platforms='any',
+    name="illumiprocessor",
+    version=illumiprocessor.__version__,
+    description="Automated Illumina read trimming using trimmomatic",
+    url="https://github.com/faircloth-lab/illumiprocessor",
+    author="Brant C. Faircloth",
+    author_email="borg@faircloth-lab.org",
+    license="BSD",
+    platforms="any",
     packages=[
-        'illumiprocessor', 'illumiprocessor.cli',
+        "illumiprocessor",
+        "illumiprocessor.cli",
     ],
-    data_files=[('config', ['config/illumiprocessor.conf'])],
-    scripts=['bin/illumiprocessor'],
+    data_files=[("config", ["config/illumiprocessor.conf"])],
+    scripts=["bin/illumiprocessor"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
