@@ -33,4 +33,4 @@ jobs:
       - name: Build phyluce
         run: |
           cd conda
-          conda build phyluce --token ${{ secrets.ANACONDA_TOKEN }} --label phyluce
+          conda build illumiprocessor --token ${{ secrets.ANACONDA_TOKEN }} --label phyluce
