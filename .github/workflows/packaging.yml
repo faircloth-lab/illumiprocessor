@@ -30,6 +30,10 @@ jobs:
       - name: Install conda build tools
         run: |
           conda install conda-build anaconda-client
+      - name: Setup channels
+        run: |
+          conda config --add channels bioconda
+          conda config --add channels conda-forge
       - name: Build illumiprocessor
         run: |
           cd conda
