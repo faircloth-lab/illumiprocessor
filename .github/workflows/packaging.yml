@@ -30,7 +30,7 @@ jobs:
       - name: Install conda build tools
         run: |
           conda install conda-build anaconda-client
-      - name: Build phyluce
+      - name: Build illumiprocessor
         run: |
           cd conda
           conda build illumiprocessor --token ${{ secrets.ANACONDA_TOKEN }} --label phyluce
