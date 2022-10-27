@@ -37,7 +37,7 @@ class CreateDir(argparse.Action):
         d = os.path.abspath(os.path.expanduser(values))
         # check to see if directory exists
         if os.path.exists(d):
-            answer = eval(input("[WARNING] Output directory exists, REMOVE [Y/n]? "))
+            answer = input("[WARNING] Output directory exists, REMOVE [Y/n]? ")
             if answer == "Y":
                 shutil.rmtree(d)
             else:
